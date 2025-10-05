@@ -253,12 +253,22 @@ export interface ShipmentDetailsData {
         </div>
     `,
     styles: [`
+      :host {
+        --primary-color: #21275c; /* Pantone 2758 C */
+        --secondary-color: #04b2e1; /* Pantone 306 C */
+        --accent-color: #f36f21; /* Pantone 158 C */
+        --text-primary: #333;
+        --text-secondary: #666;
+        --bg-light: #f8f9fa;
+        --border-color: #e9ecef;
+      }
+
       .modal-container { max-width: 900px; width: 100%; }
-      .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background-color: #21275c; color: white; }
+      .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background-color: var(--primary-color); color: white; }
       .modal-title { margin: 0; font-size: 20px; font-weight: 600; color: white; }
       .close-button { color: rgba(255,255,255,0.7); }
       .modal-content { padding: 0; }
-      .modal-actions { padding: 16px 24px; border-top: 1px solid #e5e7eb; }
+      .modal-actions { padding: 16px 24px; border-top: 1px solid var(--border-color); }
       
       /* Tab Styles */
       .payment-tabs {
@@ -266,21 +276,21 @@ export interface ShipmentDetailsData {
       }
       
       ::ng-deep .payment-tabs .mat-mdc-tab-header {
-        background-color: #f8fafc;
-        border-bottom: 1px solid #e5e7eb;
+        background-color: var(--bg-light);
+        border-bottom: 1px solid var(--border-color);
       }
       
       ::ng-deep .payment-tabs .mat-mdc-tab-label {
-        color: #64748b;
+        color: var(--text-secondary);
         font-weight: 500;
       }
       
       ::ng-deep .payment-tabs .mat-mdc-tab-label.mdc-tab--active {
-        color: #21275c;
+        color: var(--primary-color);
       }
       
       ::ng-deep .payment-tabs .mat-ink-bar {
-        background-color: #04b2e1;
+        background-color: var(--secondary-color);
       }
       
       .tab-content {
@@ -291,20 +301,20 @@ export interface ShipmentDetailsData {
       /* Premium Card Styles */
       .premium-card {
         margin-bottom: 16px;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
       }
       
       .premium-title {
         display: flex;
         align-items: center;
-        color: #21275c;
+        color: var(--primary-color);
         font-weight: 600;
       }
       
       .premium-icon {
         margin-right: 8px;
-        color: #04b2e1;
+        color: var(--secondary-color);
       }
       
       .premium-breakdown {
@@ -316,7 +326,7 @@ export interface ShipmentDetailsData {
         justify-content: space-between;
         align-items: center;
         padding: 8px 0;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid var(--bg-light);
       }
       
       .premium-row:last-child {
@@ -324,12 +334,12 @@ export interface ShipmentDetailsData {
       }
       
       .premium-label {
-        color: #64748b;
+        color: var(--text-secondary);
         font-weight: 500;
       }
       
       .premium-value {
-        color: #1e293b;
+        color: var(--text-primary);
         font-weight: 600;
       }
       
@@ -338,40 +348,40 @@ export interface ShipmentDetailsData {
       }
       
       .total-row {
-        background-color: #f8fafc;
+        background-color: var(--bg-light);
         padding: 16px;
         margin: 16px -16px -16px -16px;
         border-radius: 8px;
       }
       
       .total-label {
-        color: #21275c;
+        color: var(--primary-color);
         font-weight: 700;
         font-size: 16px;
       }
       
       .total-value {
-        color: #21275c;
+        color: var(--primary-color);
         font-weight: 700;
         font-size: 18px;
       }
       
       /* Payment Card Styles */
       .payment-card {
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
       }
       
       .payment-title {
         display: flex;
         align-items: center;
-        color: #21275c;
+        color: var(--primary-color);
         font-weight: 600;
       }
       
       .payment-icon {
         margin-right: 8px;
-        color: #04b2e1;
+        color: var(--secondary-color);
       }
       
       .amount-display {
@@ -460,7 +470,7 @@ export interface ShipmentDetailsData {
         align-items: center;
         justify-content: center;
         padding: 32px;
-        color: #64748b;
+        color: var(--text-secondary);
         font-weight: 500;
       }
       

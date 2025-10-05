@@ -26,6 +26,7 @@ import {
     KycShippingPaymentModalComponent,
     KycShippingPaymentModalData, PaymentModalComponent,
 } from '../marine-cargo-quotation/marine-cargo.component';
+import { MarineBuyNowModalComponent, MarineBuyNowData } from '../marine-cargo-quotation/marine-buy-now-modal.component';
 import { TravellerDetailsModalComponent, TravellerDetailsModalData, TravellerDetailsFormOutput } from '../travel-quote/traveller-details-modal.component';
 
 // --- (All your interface and modal component definitions remain the same) ---
@@ -588,7 +589,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     } else {
         // For Marine quotes, use the existing KYC/Shipping modal flow
-        this.openKycShippingPaymentModal(quote.quoteId, quote.originCountry, quote.shippingmodeId, quote.sumassured, quote.pinNumber, quote.idNumber, quote.status, quote.phoneNo, quote.netprem, quote.refno);
+        this.openShipmentDetailsPaymentModal(quote.quoteId, quote.status, quote.netprem, quote.phoneNo, quote.refno);
     }
 }
 
@@ -597,7 +598,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
 
-    private openKycShippingPaymentModal(quoteId: number,originCountry:string,shippingmodeId:number,sumassured:number,pinNo: string,idNo: string,status:string,phone:string,prem:number,refno:string): void {
+    private openShipmentDetailsPaymentModal(shippingId: number, status: string, prem: number, phone: string, refno: string): void {
   const isMobile = window.innerWidth <= 480;
 
   // Add body class to prevent background scrolling on mobile
@@ -605,13 +606,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     document.body.classList.add('modal-open');
   }
   if(status==='DRAFT'){
-  const dialogRef = this.dialog.open(KycShippingPaymentModalComponent, {
+  const dialogRef = this.dialog.open(MarineBuyNowModalComponent, {
     width: isMobile ? '100vw' : '800px',
     maxWidth: isMobile ? '100vw' : '90vw',
     height: isMobile ? '100vh' : 'auto',
     maxHeight: isMobile ? '100vh' : '90vh',
     panelClass: ['payment-modal', ...(isMobile ? ['mobile-modal'] : [])],
-    data: {quoteId:quoteId,originCountry:originCountry,shippingmodeId:shippingmodeId,sumassured:sumassured,pinNo:pinNo,idNo:idNo},
+    data: { quoteId: String(shippingId) } as MarineBuyNowData,
     disableClose: true,
     hasBackdrop: true,
     backdropClass: 'payment-modal-backdrop',

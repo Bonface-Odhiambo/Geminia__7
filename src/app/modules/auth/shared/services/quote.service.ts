@@ -77,4 +77,14 @@ export class QuoteService {
         // Try POST method as an alternative to PUT
         return this.http.post(`${this.baseUrl}/shippingapplication/${shippingId}`, details);
     }
+
+    /**
+     * Recalculates the premium for a marine quote.
+     * @param quoteId The ID of the quote.
+     * @param sumInsured The new sum insured value.
+     * @returns Observable with the new premium details.
+     */
+    recalculateMarinePremium(quoteId: string, sumInsured: number): Observable<any> {
+        return this.http.post(`${this.baseUrl}/quote/${quoteId}/recalculate`, { sumInsured });
+    }
 }

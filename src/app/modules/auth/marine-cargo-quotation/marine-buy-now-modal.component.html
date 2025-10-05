@@ -1,0 +1,312 @@
+<div [formGroup]="shipmentForm">
+  <div class="modal-header">
+    <div class="header-icon-wrapper">
+      <mat-icon>local_shipping</mat-icon>
+    </div>
+    <div class="header-text-content">
+      <h1 mat-dialog-title class="modal-title">Shipment Information</h1>
+      <p class="modal-subtitle">Fill the form to process your shipment insurance</p>
+    </div>
+    <button mat-icon-button (click)="closeDialog()" class="close-button" aria-label="Close dialog">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="flex justify-center items-center h-96">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <div *ngIf="!isLoading" class="min-h-screen bg-gray-50 py-8 px-4">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Form Section -->
+        <div class="lg:col-span-2">
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            
+            <div class="recalculation-notice">
+                <mat-icon>info_outline</mat-icon>
+                <span>Editing the Sum Insured will automatically recalculate your premium.</span>
+            </div>
+
+          <!-- Document Uploads -->
+          <div class="mb-8">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Document Uploads</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  IDF Document <span class="text-red-500">*</span>
+                </label>
+                <div class="border-2 border-dashed border-gray-300 rounded-md p-4 text-center">
+                  <button type="button" mat-button color="primary" (click)="idfDocument.click()">
+                    Choose file
+                  </button>
+                  <input hidden #idfDocument type="file" (change)="onFileSelected($event, 'idfDocument')">
+                  <p class="text-xs text-gray-500 mt-1">{{ shipmentForm.get('idfDocument').value?.name || 'No file chosen' }}</p>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Invoice <span class="text-red-500">*</span>
+                </label>
+                <div class="border-2 border-dashed border-gray-300 rounded-md p-4 text-center">
+                  <button type="button" mat-button color="primary" (click)="invoice.click()">
+                    Choose file
+                  </button>
+                  <input hidden #invoice type="file" (change)="onFileSelected($event, 'invoice')">
+                  <p class="text-xs text-gray-500 mt-1">{{ shipmentForm.get('invoice').value?.name || 'No file chosen' }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                      KRA PIN Certificate <span class="text-red-500">*</span>
+                    </label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-md p-4 text-center">
+                      <button type="button" mat-button color="primary" (click)="kraPinCertificate.click()">
+                        Choose file
+                      </button>
+                      <input hidden #kraPinCertificate type="file" (change)="onFileSelected($event, 'kraPinCertificate')">
+                      <p class="text-xs text-gray-500 mt-1">{{ shipmentForm.get('kraPinCertificate').value?.name || 'No file chosen' }}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                      National ID <span class="text-red-500">*</span>
+                    </label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-md p-4 text-center">
+                      <button type="button" mat-button color="primary" (click)="nationalId.click()">
+                        Choose file
+                      </button>
+                      <input hidden #nationalId type="file" (change)="onFileSelected($event, 'nationalId')">
+                      <p class="text-xs text-gray-500 mt-1">{{ shipmentForm.get('nationalId').value?.name || 'No file chosen' }}</p>
+                    </div>
+                  </div>
+            </div>
+            <div class="flex items-start">
+                <mat-checkbox formControlName="agreeToTerms" color="primary"></mat-checkbox>
+                <label class="text-sm text-gray-600 ml-2">
+                  I agree to the <a href="#" class="text-blue-600 hover:underline">Terms of Use</a> and to the <a href="#" class="text-blue-600 hover:underline">Data Privacy Policy</a>
+                </label>
+            </div>
+          </div>
+
+          <!-- Personal Details & KYC -->
+          <div class="mb-8">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Personal Details & KYC</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <mat-form-field appearance="outline">
+                <mat-label>First Name</mat-label>
+                <input matInput formControlName="firstName" placeholder="Enter first name">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Last Name</mat-label>
+                <input matInput formControlName="lastName" placeholder="Enter last name">
+              </mat-form-field>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>Email Address</mat-label>
+                    <input matInput formControlName="emailAddress" placeholder="Enter email address">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>Phone Number</mat-label>
+                    <input matInput formControlName="phoneNumber" placeholder="Enter phone number">
+                </mat-form-field>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>KRA PIN</mat-label>
+                    <input matInput formControlName="kraPin" placeholder="e.g., A012345678K">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>ID Number</mat-label>
+                    <input matInput formControlName="idNumber" placeholder="Enter ID number">
+                </mat-form-field>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>Street Address</mat-label>
+                    <input matInput formControlName="streetAddress" placeholder="Enter your street address">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>Postal Code</mat-label>
+                    <input matInput formControlName="postalCode" placeholder="Enter postal code (numbers only)">
+                </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Shipment Details -->
+          <div class="mb-8">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Shipment Details</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>Mode of Shipment</mat-label>
+                    <mat-select formControlName="modeOfShipment">
+                      <mat-option value="Sea">Sea</mat-option>
+                      <mat-option value="Air">Air</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>Trade Type</mat-label>
+                    <mat-select formControlName="tradeType">
+                      <mat-option value="import">Import</mat-option>
+                      <mat-option value="export">Export</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>Product</mat-label>
+                    <input matInput formControlName="product" placeholder="e.g., All HS Codes">
+                </mat-form-field>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Commodity Type</label>
+                    <mat-radio-group formControlName="commodityType" color="primary">
+                      <mat-radio-button value="Containerized" class="mr-4">Containerized</mat-radio-button>
+                      <mat-radio-button value="Non Containerized">Non Containerized</mat-radio-button>
+                    </mat-radio-group>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>Sales Category</mat-label>
+                    <mat-select formControlName="salesCategory">
+                      <mat-option value="wholesale">Wholesale</mat-option>
+                      <mat-option value="retail">Retail</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>Destination</mat-label>
+                    <input matInput formControlName="destination" placeholder="Kenya">
+                </mat-form-field>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>Country of Origin</mat-label>
+                    <mat-select formControlName="countryOfOrigin">
+                        <mat-option>
+                            <ngx-mat-select-search [formControl]="countrySearchCtrl" placeholderLabel="Search..."></ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngFor="let country of filteredCountries | async" [value]="country.id">
+                            {{ country.name }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>GCR Number</mat-label>
+                    <input matInput formControlName="gcrNumber" placeholder="e.g., ONWARD INTERNATIONAL">
+                </mat-form-field>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>ID Number</mat-label>
+                    <input matInput formControlName="idNumber2" placeholder="e.g., 205842846505495">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>Loading Port</mat-label>
+                    <mat-select formControlName="loadingPort">
+                        <mat-option>
+                            <ngx-mat-select-search [formControl]="loadingPortSearchCtrl" placeholderLabel="Search..."></ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngFor="let port of filteredLoadingPorts | async" [value]="port.id">
+                            {{ port.name }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>Port of Discharge</mat-label>
+                    <mat-select formControlName="portOfDischarge">
+                        <mat-option>
+                            <ngx-mat-select-search [formControl]="dischargePortSearchCtrl" placeholderLabel="Search..."></ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngFor="let port of filteredDischargePorts | async" [value]="port.id">
+                            {{ port.name }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>Vessel Name</mat-label>
+                    <input matInput formControlName="vesselName" placeholder="e.g., MSC Sindhura">
+                </mat-form-field>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>Final Destination (County)</mat-label>
+                    <mat-select formControlName="finalDestination">
+                        <mat-option *ngFor="let county of kenyanCounties" [value]="county">
+                            {{ county }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>Date of Dispatch</mat-label>
+                    <input matInput [matDatepicker]="dispatchPicker" formControlName="dateOfDispatch">
+                    <mat-datepicker-toggle matSuffix [for]="dispatchPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #dispatchPicker></mat-datepicker>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>Estimated Time of Arrival</mat-label>
+                    <input matInput [matDatepicker]="arrivalPicker" formControlName="estimatedArrival">
+                    <mat-datepicker-toggle matSuffix [for]="arrivalPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #arrivalPicker></mat-datepicker>
+                </mat-form-field>
+            </div>
+            <div class="mb-4">
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Sum Insured (KES)</mat-label>
+                    <input matInput type="number" formControlName="sumInsured" placeholder="3,500,000">
+                </mat-form-field>
+            </div>
+            <div>
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Description of Goods</mat-label>
+                    <textarea matInput formControlName="goodsDescription" placeholder="Describe the type of goods, their value, quantity, packaging details" rows="4"></textarea>
+                </mat-form-field>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Summary Section -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-sm p-6 sticky top-8">
+          <h2 class="text-lg font-semibold text-gray-900 mb-4">Payment</h2>
+          <div class="space-y-3 mb-4 pb-4 border-b">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Insurance Premium</span>
+              <span class="font-medium">KES {{ premium | number:'1.2-2' }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Tax</span>
+              <span class="font-medium">KES {{ tax | number:'1.2-2' }}</span>
+            </div>
+          </div>
+          <div class="flex justify-between text-base font-semibold mb-6">
+            <span>Total Amount</span>
+            <span class="text-blue-600">KES {{ total | number:'1.2-2' }}</span>
+          </div>
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-3">Payment Method</label>
+            <mat-radio-group formControlName="paymentMethod" color="primary">
+                <mat-radio-button value="mpesa" class="p-3 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50">
+                    <div class="flex-1">
+                        <div class="font-medium text-sm">M-PESA</div>
+                        <div class="text-xs text-gray-500">Mpesa Lipa na mpesa</div>
+                    </div>
+                </mat-radio-button>
+            </mat-radio-group>
+          </div>
+          <button mat-raised-button color="primary" class="w-full" (click)="onSubmit()" [disabled]="isSubmitting">
+            <mat-spinner *ngIf="isSubmitting" diameter="24" class="mr-2"></mat-spinner>
+            {{ isSubmitting ? 'Processing...' : 'Proceed to Payment' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

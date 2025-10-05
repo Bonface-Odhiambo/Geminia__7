@@ -102,11 +102,15 @@ export class UserService {
         });
     }
 
-    getCountries(offset: number, limit: number,type: number): Observable<any> {
+    getCountries(offset: number, limit: number,type: number, sqlSearch?: string): Observable<any> {
         let params = new HttpParams()
             .set('offset', offset.toString())
             .set('limit', limit.toString())
             .set('type', type.toString());
+
+        if (sqlSearch) {
+            params = params.set('sqlSearch', sqlSearch);
+        }
 
         return this._httpClient.get<any>(`${this.baseUrl}/self/countries`, { params });
     }
