@@ -183,19 +183,26 @@
                 </mat-form-field>
             </div>
             
-            <!-- Sum Insured | Packaging Type -->
+            <!-- ICC(A) All Risk | Sum Insured -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>Cargo Protection</mat-label>
+                    <input matInput value="ICC (A) All Risk" readonly class="font-bold text-blue-900" style="cursor: default;">
+                    <mat-icon matSuffix class="text-blue-600">verified_user</mat-icon>
+                </mat-form-field>
                 <mat-form-field appearance="outline">
                     <mat-label>Sum Insured (KES)</mat-label>
                     <input matInput type="number" formControlName="sumInsured" placeholder="3,500,000">
                 </mat-form-field>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Packaging Type</label>
-                    <mat-radio-group formControlName="commodityType" color="primary">
-                      <mat-radio-button value="Containerized" class="mr-4">Containerized</mat-radio-button>
-                      <mat-radio-button value="Non Containerized">Non Containerized</mat-radio-button>
-                    </mat-radio-group>
-                </div>
+            </div>
+            
+            <!-- Packaging Type -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Packaging Type</label>
+                <mat-radio-group formControlName="commodityType" color="primary">
+                  <mat-radio-button value="Containerized" class="mr-4">Containerized</mat-radio-button>
+                  <mat-radio-button value="Non Containerized">Non Containerized</mat-radio-button>
+                </mat-radio-group>
             </div>
             
             <!-- Select Category | Cargo Type -->
@@ -281,14 +288,6 @@
                 </mat-form-field>
             </div>
             
-            <!-- Cargo Protection (Read-only) -->
-            <div class="mb-4">
-                <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>Cargo Protection</mat-label>
-                    <input matInput value="ICC (A) All Risk" readonly class="font-bold text-blue-900" style="cursor: default;">
-                    <mat-icon matSuffix class="text-blue-600">verified_user</mat-icon>
-                </mat-form-field>
-            </div>
             <div>
                 <mat-form-field appearance="outline" class="w-full">
                     <mat-label>Description of Goods</mat-label>
@@ -303,29 +302,52 @@
       <div class="lg:col-span-1">
         <div class="bg-white rounded-lg shadow-sm p-6 sticky top-8">
           <h2 class="text-lg font-semibold text-gray-900 mb-4">Payment</h2>
+          
+          <!-- Cargo Protection Info -->
+          <div class="mb-4 pb-4 border-b">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-gray-700">Cargo Protection</span>
+              <mat-icon class="text-blue-600" style="font-size: 20px; width: 20px; height: 20px;">verified_user</mat-icon>
+            </div>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
+              <span class="text-blue-900 font-bold text-sm">ICC (A) All Risk</span>
+            </div>
+          </div>
+          
           <div class="space-y-3 mb-4 pb-4 border-b">
             <div class="flex justify-between text-sm">
-              <span class="text-gray-600">Insurance Premium</span>
+              <span class="text-gray-600">Sum Insured</span>
+              <span class="font-medium">KES {{ shipmentForm.get('sumInsured')?.value | number:'1.2-2' }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Base Premium</span>
               <span class="font-medium">KES {{ premium | number:'1.2-2' }}</span>
             </div>
             <div class="flex justify-between text-sm">
-              <span class="text-gray-600">Tax</span>
-              <span class="font-medium">KES {{ tax | number:'1.2-2' }}</span>
+              <span class="text-gray-600">PHCF (0.25%)</span>
+              <span class="font-medium">KES {{ (premium * 0.0025) | number:'1.2-2' }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Training Levy (0.2%)</span>
+              <span class="font-medium">KES {{ (premium * 0.002) | number:'1.2-2' }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Stamp Duty (0.05%)</span>
+              <span class="font-medium">KES {{ (premium * 0.0005) | number:'1.2-2' }}</span>
             </div>
           </div>
           <div class="flex justify-between text-base font-semibold mb-6">
             <span>Total Amount</span>
             <span class="text-blue-600">KES {{ total | number:'1.2-2' }}</span>
           </div>
-          <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-700 mb-3">Payment Method</label>
-            <mat-radio-group formControlName="paymentMethod" color="primary">
-                <mat-radio-button value="mpesa" class="p-3 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50">
-                    <div class="flex-1">
-                        <div class="font-medium text-sm">M-PESA</div>
-                    </div>
-                </mat-radio-button>
-            </mat-radio-group>
+          
+          <!-- M-Pesa Logo -->
+          <div class="mb-6 flex justify-center">
+            <div class="bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm">
+              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvbyhbvv75IhuEeL501ZQh_tuu3CwZ6EZWGw&s" 
+                   alt="M-Pesa" 
+                   class="h-8 object-contain">
+            </div>
           </div>
           
           <!-- M-Pesa Number Field -->
