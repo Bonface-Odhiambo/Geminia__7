@@ -7,7 +7,6 @@
     </div>
     <div class="header-text-content">
       <h1 mat-dialog-title class="modal-title">Shipment Information</h1>
-      <p class="modal-subtitle">Fill Shipment Information</p>
     </div>
     <button mat-icon-button (click)="closeDialog()" class="close-button" aria-label="Close dialog">
       <mat-icon>close</mat-icon>
@@ -45,6 +44,7 @@
                   <input hidden #idfDocument type="file" (change)="onFileSelected($event, 'idfDocument')">
                   <p class="text-xs text-gray-500 mt-1">{{ shipmentForm.get('idfDocument').value?.name || 'No file chosen' }}</p>
                 </div>
+                <p *ngIf="duplicateFileErrors['idfDocument']" class="text-xs text-red-600 mt-1">{{ duplicateFileErrors['idfDocument'] }}</p>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -57,6 +57,7 @@
                   <input hidden #invoice type="file" (change)="onFileSelected($event, 'invoice')">
                   <p class="text-xs text-gray-500 mt-1">{{ shipmentForm.get('invoice').value?.name || 'No file chosen' }}</p>
                 </div>
+                <p *ngIf="duplicateFileErrors['invoice']" class="text-xs text-red-600 mt-1">{{ duplicateFileErrors['invoice'] }}</p>
               </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -71,6 +72,7 @@
                       <input hidden #kraPinCertificate type="file" (change)="onFileSelected($event, 'kraPinCertificate')">
                       <p class="text-xs text-gray-500 mt-1">{{ shipmentForm.get('kraPinCertificate').value?.name || 'No file chosen' }}</p>
                     </div>
+                    <p *ngIf="duplicateFileErrors['kraPinCertificate']" class="text-xs text-red-600 mt-1">{{ duplicateFileErrors['kraPinCertificate'] }}</p>
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -83,6 +85,7 @@
                       <input hidden #nationalId type="file" (change)="onFileSelected($event, 'nationalId')">
                       <p class="text-xs text-gray-500 mt-1">{{ shipmentForm.get('nationalId').value?.name || 'No file chosen' }}</p>
                     </div>
+                    <p *ngIf="duplicateFileErrors['nationalId']" class="text-xs text-red-600 mt-1">{{ duplicateFileErrors['nationalId'] }}</p>
                   </div>
             </div>
             <div class="flex items-center">
@@ -320,7 +323,6 @@
                 <mat-radio-button value="mpesa" class="p-3 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50">
                     <div class="flex-1">
                         <div class="font-medium text-sm">M-PESA</div>
-                        <div class="text-xs text-gray-500">Mpesa Lipa na mpesa</div>
                     </div>
                 </mat-radio-button>
             </mat-radio-group>

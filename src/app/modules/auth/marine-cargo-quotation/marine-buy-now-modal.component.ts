@@ -298,6 +298,20 @@ export interface MarineBuyNowData {
         ::ng-deep .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content.mat-calendar-body-selected {
             background-color: var(--primary-color) !important;
         }
+
+        /* Error Snackbar Styling */
+        ::ng-deep .error-snackbar {
+            background-color: #dc2626 !important;
+            color: white !important;
+        }
+
+        ::ng-deep .error-snackbar .mat-mdc-snack-bar-label {
+            color: white !important;
+        }
+
+        ::ng-deep .error-snackbar .mat-mdc-button {
+            color: white !important;
+        }
     `]
 
 })
@@ -308,6 +322,9 @@ export class MarineBuyNowModalComponent implements OnInit {
     premium = 0;
     tax = 0;
     total = 0;
+    
+    // Track duplicate file errors
+    duplicateFileErrors: { [key: string]: string } = {};
 
     // County Data
     kenyanCounties: string[] = [
@@ -405,8 +422,39 @@ export class MarineBuyNowModalComponent implements OnInit {
     }
 
     onFileSelected(event: Event, controlName: string): void {
-        const file = (event.target as HTMLInputElement).files?.[0];
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+        
         if (file) {
+            // Clear any existing error for this field
+            delete this.duplicateFileErrors[controlName];
+            
+            // Check if this file is already uploaded in another field
+            const documentFields = ['idfDocument', 'invoice', 'kraPinCertificate', 'nationalId'];
+            const isDuplicate = documentFields.some(fieldName => {
+                if (fieldName === controlName) return false; // Skip current field
+                const existingFile = this.shipmentForm.get(fieldName)?.value;
+                if (!existingFile) return false;
+                
+                // Compare file name, size, and last modified date
+                return existingFile.name === file.name && 
+                       existingFile.size === file.size && 
+                       existingFile.lastModified === file.lastModified;
+            });
+
+            if (isDuplicate) {
+                // Set error message for this field
+                this.duplicateFileErrors[controlName] = 'This document has already been uploaded in another field. Please select a different document.';
+                
+                // Clear the input
+                input.value = '';
+                
+                // Clear the form control value
+                this.shipmentForm.get(controlName)?.setValue(null);
+                return;
+            }
+
+            // Set the file if no duplicate found
             this.shipmentForm.get(controlName)?.setValue(file);
         }
     }
