@@ -61,23 +61,13 @@ export interface ShipmentDetailsData {
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
 
                                     <mat-form-field appearance="outline">
-                                        <mat-label>Mode of Shipment</mat-label>
-                                        <input matInput formControlName="shippingModeName" (blur)="onFormChange()">
+                                        <mat-label>Vessel Name</mat-label>
+                                        <input matInput formControlName="vesselName" (blur)="onFormChange()">
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
-                                        <mat-label>Trade Type</mat-label>
-                                        <input matInput formControlName="importerType" (blur)="onFormChange()">
-                                    </mat-form-field>
-
-                                    <mat-form-field appearance="outline">
-                                        <mat-label>Destination</mat-label>
-                                        <input matInput formControlName="originCountryName" (blur)="onFormChange()">
-                                    </mat-form-field>
-
-                                    <mat-form-field appearance="outline">
-                                        <mat-label>Insured Name</mat-label>
-                                        <input matInput formControlName="consignmentNumber" (blur)="onFormChange()">
+                                        <mat-label>IDF Number</mat-label>
+                                        <input matInput formControlName="idfNumber" (blur)="onFormChange()">
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
@@ -85,19 +75,39 @@ export interface ShipmentDetailsData {
                                         <input matInput formControlName="sumassured" type="number" (blur)="onFormChange()">
                                     </mat-form-field>
 
-                                    <mat-form-field appearance="outline" class="md:col-span-2">
-                                        <mat-label>Goods Description</mat-label>
-                                        <textarea matInput formControlName="description" rows="3" (blur)="onFormChange()"></textarea>
-                                    </mat-form-field>
-
                                     <mat-form-field appearance="outline">
-                                        <mat-label>Marine Cargo Type</mat-label>
-                                        <input matInput formControlName="vesselName" (blur)="onFormChange()">
-                                    </mat-form-field>
-
-                                    <mat-form-field appearance="outline">
-                                        <mat-label>Marine Packaging Type</mat-label>
+                                        <mat-label>Packaging Type</mat-label>
                                         <input matInput formControlName="originPortName" (blur)="onFormChange()">
+                                    </mat-form-field>
+
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>Select Category</mat-label>
+                                        <input matInput formControlName="shippingModeName" (blur)="onFormChange()">
+                                    </mat-form-field>
+
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>Cargo Type</mat-label>
+                                        <input matInput formControlName="importerType" (blur)="onFormChange()">
+                                    </mat-form-field>
+
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>Date of Dispatch</mat-label>
+                                        <input matInput formControlName="consignmentNumber" (blur)="onFormChange()">
+                                    </mat-form-field>
+
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>Estimated Time of Arrival</mat-label>
+                                        <input matInput formControlName="postalAddress" (blur)="onFormChange()">
+                                    </mat-form-field>
+
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>Country of Origin</mat-label>
+                                        <input matInput formControlName="originCountryName" (blur)="onFormChange()">
+                                    </mat-form-field>
+
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>Loading Port</mat-label>
+                                        <input matInput formControlName="postalCode" (blur)="onFormChange()">
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
@@ -110,19 +120,9 @@ export interface ShipmentDetailsData {
                                         <input matInput formControlName="countyName" (blur)="onFormChange()">
                                     </mat-form-field>
 
-                                    <mat-form-field appearance="outline">
-                                        <mat-label>IDF Number</mat-label>
-                                        <input matInput formControlName="idfNumber" (blur)="onFormChange()">
-                                    </mat-form-field>
-
-                                    <mat-form-field appearance="outline">
-                                        <mat-label>Postal Address</mat-label>
-                                        <input matInput formControlName="postalAddress" (blur)="onFormChange()">
-                                    </mat-form-field>
-
-                                    <mat-form-field appearance="outline">
-                                        <mat-label>Postal Code</mat-label>
-                                        <input matInput formControlName="postalCode" (blur)="onFormChange()">
+                                    <mat-form-field appearance="outline" class="md:col-span-2">
+                                        <mat-label>Description</mat-label>
+                                        <textarea matInput formControlName="description" rows="3" (blur)="onFormChange()"></textarea>
                                     </mat-form-field>
 
                                 </div>
@@ -143,6 +143,10 @@ export interface ShipmentDetailsData {
                                     </mat-card-header>
                                     <mat-card-content>
                                         <div class="premium-breakdown" *ngIf="premiumCalculation">
+                                            <div class="premium-row cargo-protection-row">
+                                                <span class="premium-label">Cargo Protection:</span>
+                                                <span class="premium-value">ICC (A) All Risk</span>
+                                            </div>
                                             <div class="premium-row">
                                                 <span class="premium-label">Sum Insured:</span>
                                                 <span class="premium-value">KES {{ premiumCalculation.sumInsured | number:'1.2-2' }}</span>
@@ -167,6 +171,19 @@ export interface ShipmentDetailsData {
                                             <div class="premium-row total-row">
                                                 <span class="premium-label total-label">Total Premium:</span>
                                                 <span class="premium-value total-value">KES {{ premiumCalculation.totalPayable | number:'1.2-2' }}</span>
+                                            </div>
+                                            
+                                            <mat-divider class="premium-divider"></mat-divider>
+                                            
+                                            <div class="mpesa-field-section">
+                                                <form [formGroup]="paymentForm">
+                                                    <mat-form-field appearance="outline" class="mpesa-field">
+                                                        <mat-label>M-Pesa Number</mat-label>
+                                                        <input matInput formControlName="phoneNumber" placeholder="254XXXXXXXXX">
+                                                        <mat-icon matSuffix>phone</mat-icon>
+                                                        <mat-hint>Enter your M-Pesa registered phone number</mat-hint>
+                                                    </mat-form-field>
+                                                </form>
                                             </div>
                                         </div>
                                         
@@ -342,6 +359,24 @@ export interface ShipmentDetailsData {
         font-weight: 600;
       }
       
+      .cargo-protection-row {
+        background-color: #f0f9ff;
+        padding: 12px;
+        margin: -8px -16px 8px -16px;
+        border-radius: 8px;
+        border: 1px solid #bae6fd;
+      }
+      
+      .cargo-protection-row .premium-label {
+        color: #0369a1;
+        font-weight: 600;
+      }
+      
+      .cargo-protection-row .premium-value {
+        color: #0c4a6e;
+        font-weight: 700;
+      }
+      
       .premium-divider {
         margin: 16px 0;
       }
@@ -460,6 +495,15 @@ export interface ShipmentDetailsData {
       .info-text p {
         margin: 0 0 4px 0;
         font-size: 14px;
+      }
+      
+      /* M-Pesa Field Section */
+      .mpesa-field-section {
+        margin-top: 16px;
+      }
+      
+      .mpesa-field {
+        width: 100%;
       }
       
       /* Loading and Status Messages */

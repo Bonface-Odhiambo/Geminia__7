@@ -92,8 +92,12 @@
           </div>
 
           <!-- Personal Details & KYC -->
-          <div class="mb-8">
+          <div class="mb-8" [class.disabled-section]="!shipmentForm.get('agreeToTerms')?.value">
             <h2 class="text-lg font-semibold text-gray-900 mb-4">Importer Details</h2>
+            <div *ngIf="!shipmentForm.get('agreeToTerms')?.value" class="disabled-overlay">
+              <mat-icon>lock</mat-icon>
+              <p>Please agree to the Terms of Use and Data Privacy Policy to enable this section</p>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <mat-form-field appearance="outline">
                 <mat-label>First Name</mat-label>
@@ -137,8 +141,12 @@
           </div>
 
           <!-- Shipment Details -->
-          <div class="mb-8">
+          <div class="mb-8" [class.disabled-section]="!shipmentForm.get('agreeToTerms')?.value">
             <h2 class="text-lg font-semibold text-gray-900 mb-4">Shipment Details</h2>
+            <div *ngIf="!shipmentForm.get('agreeToTerms')?.value" class="disabled-overlay">
+              <mat-icon>lock</mat-icon>
+              <p>Please agree to the Terms of Use and Data Privacy Policy to enable this section</p>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <mat-form-field appearance="outline">
                     <mat-label>Mode of Shipment</mat-label>
@@ -161,7 +169,7 @@
                     <input matInput formControlName="product" placeholder="e.g., All HS Codes">
                 </mat-form-field>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Marine Packaging Type</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Packaging Type</label>
                     <mat-radio-group formControlName="commodityType" color="primary">
                       <mat-radio-button value="Containerized" class="mr-4">Containerized</mat-radio-button>
                       <mat-radio-button value="Non Containerized">Non Containerized</mat-radio-button>
@@ -170,7 +178,7 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <mat-form-field appearance="outline">
-                    <mat-label>Marine Cargo Type</mat-label>
+                    <mat-label>Cargo Type</mat-label>
                     <mat-select formControlName="salesCategory">
                       <mat-option value="wholesale">Wholesale</mat-option>
                       <mat-option value="retail">Retail</mat-option>

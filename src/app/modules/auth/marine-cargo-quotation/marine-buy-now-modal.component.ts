@@ -121,6 +121,42 @@ export interface MarineBuyNowData {
         .recalculation-notice mat-icon {
             margin-right: 8px;
         }
+
+        .disabled-section {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .disabled-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            z-index: 10;
+            pointer-events: auto;
+            max-width: 400px;
+        }
+
+        .disabled-overlay mat-icon {
+            font-size: 48px;
+            width: 48px;
+            height: 48px;
+            color: #9ca3af;
+            margin-bottom: 12px;
+        }
+
+        .disabled-overlay p {
+            color: #6b7280;
+            font-size: 14px;
+            margin: 0;
+            line-height: 1.5;
+        }
     `]
 
 })
@@ -207,6 +243,18 @@ export class MarineBuyNowModalComponent implements OnInit {
 
             // Payment
             paymentMethod: ['mpesa', Validators.required]
+        });
+
+        // Initially disable Importer Details and Shipment Details sections
+        this.disableFormSections();
+        
+        // Listen for terms agreement changes
+        this.shipmentForm.get('agreeToTerms')?.valueChanges.subscribe((agreed) => {
+            if (agreed) {
+                this.enableFormSections();
+            } else {
+                this.disableFormSections();
+            }
         });
 
         this.fetchQuoteDetails();
@@ -333,6 +381,72 @@ export class MarineBuyNowModalComponent implements OnInit {
                 this.filteredCountries.next([]);
             }
         });
+    }
+
+    get termsAgreed(): boolean {
+        return this.shipmentForm.get('agreeToTerms')?.value || false;
+    }
+
+    private disableFormSections(): void {
+        // Disable Importer Details fields
+        this.shipmentForm.get('firstName')?.disable();
+        this.shipmentForm.get('lastName')?.disable();
+        this.shipmentForm.get('emailAddress')?.disable();
+        this.shipmentForm.get('phoneNumber')?.disable();
+        this.shipmentForm.get('kraPin')?.disable();
+        this.shipmentForm.get('idNumber')?.disable();
+        this.shipmentForm.get('streetAddress')?.disable();
+        this.shipmentForm.get('postalCode')?.disable();
+
+        // Disable Shipment Details fields
+        this.shipmentForm.get('modeOfShipment')?.disable();
+        this.shipmentForm.get('tradeType')?.disable();
+        this.shipmentForm.get('product')?.disable();
+        this.shipmentForm.get('commodityType')?.disable();
+        this.shipmentForm.get('salesCategory')?.disable();
+        this.shipmentForm.get('destination')?.disable();
+        this.shipmentForm.get('countryOfOrigin')?.disable();
+        this.shipmentForm.get('gcrNumber')?.disable();
+        this.shipmentForm.get('idNumber2')?.disable();
+        this.shipmentForm.get('loadingPort')?.disable();
+        this.shipmentForm.get('portOfDischarge')?.disable();
+        this.shipmentForm.get('vesselName')?.disable();
+        this.shipmentForm.get('finalDestination')?.disable();
+        this.shipmentForm.get('dateOfDispatch')?.disable();
+        this.shipmentForm.get('estimatedArrival')?.disable();
+        this.shipmentForm.get('sumInsured')?.disable();
+        this.shipmentForm.get('goodsDescription')?.disable();
+    }
+
+    private enableFormSections(): void {
+        // Enable Importer Details fields
+        this.shipmentForm.get('firstName')?.enable();
+        this.shipmentForm.get('lastName')?.enable();
+        this.shipmentForm.get('emailAddress')?.enable();
+        this.shipmentForm.get('phoneNumber')?.enable();
+        this.shipmentForm.get('kraPin')?.enable();
+        this.shipmentForm.get('idNumber')?.enable();
+        this.shipmentForm.get('streetAddress')?.enable();
+        this.shipmentForm.get('postalCode')?.enable();
+
+        // Enable Shipment Details fields
+        this.shipmentForm.get('modeOfShipment')?.enable();
+        this.shipmentForm.get('tradeType')?.enable();
+        this.shipmentForm.get('product')?.enable();
+        this.shipmentForm.get('commodityType')?.enable();
+        this.shipmentForm.get('salesCategory')?.enable();
+        this.shipmentForm.get('destination')?.enable();
+        this.shipmentForm.get('countryOfOrigin')?.enable();
+        this.shipmentForm.get('gcrNumber')?.enable();
+        this.shipmentForm.get('idNumber2')?.enable();
+        this.shipmentForm.get('loadingPort')?.enable();
+        this.shipmentForm.get('portOfDischarge')?.enable();
+        this.shipmentForm.get('vesselName')?.enable();
+        this.shipmentForm.get('finalDestination')?.enable();
+        this.shipmentForm.get('dateOfDispatch')?.enable();
+        this.shipmentForm.get('estimatedArrival')?.enable();
+        this.shipmentForm.get('sumInsured')?.enable();
+        this.shipmentForm.get('goodsDescription')?.enable();
     }
 
     private fetchPorts(type: 'loading' | 'discharge', searchTerm: string = ''): void {
