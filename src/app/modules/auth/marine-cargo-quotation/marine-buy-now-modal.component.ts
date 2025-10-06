@@ -157,6 +157,147 @@ export interface MarineBuyNowData {
             margin: 0;
             line-height: 1.5;
         }
+
+        /* Date Picker Styling */
+        ::ng-deep .mat-datepicker-toggle {
+            color: var(--secondary-color) !important;
+        }
+
+        ::ng-deep .mat-datepicker-toggle-active {
+            color: var(--primary-color) !important;
+        }
+
+        ::ng-deep .mat-datepicker-toggle button {
+            width: 40px !important;
+            height: 40px !important;
+        }
+
+        ::ng-deep .mat-datepicker-toggle mat-icon {
+            font-size: 24px !important;
+            width: 24px !important;
+            height: 24px !important;
+        }
+
+        /* Calendar Panel Styling */
+        ::ng-deep .mat-datepicker-content {
+            box-shadow: 0 10px 25px rgba(33, 39, 92, 0.15) !important;
+            border-radius: 12px !important;
+            overflow: hidden;
+        }
+
+        ::ng-deep .mat-calendar {
+            font-family: inherit;
+        }
+
+        /* Calendar Header */
+        ::ng-deep .mat-calendar-header {
+            background-color: var(--primary-color) !important;
+            color: white !important;
+            padding: 16px !important;
+        }
+
+        ::ng-deep .mat-calendar-controls {
+            margin: 0 !important;
+        }
+
+        ::ng-deep .mat-calendar-period-button {
+            color: white !important;
+            font-weight: 600 !important;
+        }
+
+        ::ng-deep .mat-calendar-arrow {
+            fill: white !important;
+        }
+
+        ::ng-deep .mat-calendar-previous-button,
+        ::ng-deep .mat-calendar-next-button {
+            color: white !important;
+        }
+
+        /* Calendar Body */
+        ::ng-deep .mat-calendar-body-label {
+            color: var(--primary-color) !important;
+            font-weight: 600 !important;
+            opacity: 0.7;
+        }
+
+        ::ng-deep .mat-calendar-body-cell-content {
+            border-radius: 8px !important;
+            transition: all 0.2s ease !important;
+        }
+
+        /* Today's date */
+        ::ng-deep .mat-calendar-body-today:not(.mat-calendar-body-selected) {
+            border-color: var(--secondary-color) !important;
+            background-color: rgba(4, 178, 225, 0.1) !important;
+        }
+
+        /* Selected date */
+        ::ng-deep .mat-calendar-body-selected {
+            background-color: var(--secondary-color) !important;
+            color: white !important;
+            font-weight: 600 !important;
+        }
+
+        /* Hover effect */
+        ::ng-deep .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected) {
+            background-color: rgba(4, 178, 225, 0.2) !important;
+        }
+
+        /* Active/focused date */
+        ::ng-deep .mat-calendar-body-active > .mat-calendar-body-cell-content:not(.mat-calendar-body-selected) {
+            background-color: rgba(33, 39, 92, 0.1) !important;
+        }
+
+        /* Disabled dates */
+        ::ng-deep .mat-calendar-body-disabled {
+            opacity: 0.3 !important;
+        }
+
+        /* Date input field styling */
+        ::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-form-field-focus-overlay {
+            opacity: 0 !important;
+        }
+
+        ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+        ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+        ::ng-deep .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+            border-color: var(--secondary-color) !important;
+        }
+
+        /* Prevent calendar icon overlap with placeholder */
+        ::ng-deep .mat-mdc-form-field-has-icon-suffix .mat-mdc-text-field-wrapper {
+            padding-right: 0 !important;
+        }
+
+        ::ng-deep .mat-mdc-form-field-has-icon-suffix .mat-mdc-form-field-infix {
+            padding-right: 48px !important;
+        }
+
+        ::ng-deep .mat-datepicker-toggle {
+            position: absolute !important;
+            right: 0 !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+        }
+
+        ::ng-deep .mat-mdc-form-field-icon-suffix {
+            padding-left: 8px !important;
+        }
+
+        /* Ensure input text doesn't overlap with icon */
+        ::ng-deep .mat-mdc-input-element {
+            padding-right: 8px !important;
+        }
+
+        /* Month/Year view styling */
+        ::ng-deep .mat-calendar-body-cell-content.mat-focus-indicator {
+            border-radius: 8px !important;
+        }
+
+        ::ng-deep .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover > .mat-calendar-body-cell-content.mat-calendar-body-selected {
+            background-color: var(--primary-color) !important;
+        }
     `]
 
 })

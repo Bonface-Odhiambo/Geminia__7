@@ -149,6 +149,8 @@
               <mat-icon>lock</mat-icon>
               <p>Please agree to the Terms of Use and Data Privacy Policy to enable this section</p>
             </div>
+            
+            <!-- Mode of Shipment | Trade Type -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <mat-form-field appearance="outline">
                     <mat-label>Mode of Shipment</mat-label>
@@ -165,10 +167,24 @@
                     </mat-select>
                 </mat-form-field>
             </div>
+            
+            <!-- Vessel Name | IDF Number -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <mat-form-field appearance="outline">
-                    <mat-label>Product</mat-label>
-                    <input matInput formControlName="product" placeholder="e.g., All HS Codes">
+                    <mat-label>Vessel Name</mat-label>
+                    <input matInput formControlName="vesselName" placeholder="Enter vessel name">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>IDF Number</mat-label>
+                    <input matInput formControlName="gcrNumber" placeholder="e.g., ONWARD INTERNATIONAL">
+                </mat-form-field>
+            </div>
+            
+            <!-- Sum Insured | Packaging Type -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>Sum Insured (KES)</mat-label>
+                    <input matInput type="number" formControlName="sumInsured" placeholder="3,500,000">
                 </mat-form-field>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Packaging Type</label>
@@ -178,7 +194,16 @@
                     </mat-radio-group>
                 </div>
             </div>
+            
+            <!-- Select Category | Cargo Type -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>Select Category</mat-label>
+                    <mat-select formControlName="selectCategory">
+                      <mat-option value="category1">Category 1</mat-option>
+                      <mat-option value="category2">Category 2</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <mat-form-field appearance="outline">
                     <mat-label>Cargo Type</mat-label>
                     <mat-select formControlName="salesCategory">
@@ -186,14 +211,28 @@
                       <mat-option value="retail">Retail</mat-option>
                     </mat-select>
                 </mat-form-field>
-                <mat-form-field appearance="outline">
-                    <mat-label>Destination</mat-label>
-                    <input matInput formControlName="destination" placeholder="Kenya">
-                </mat-form-field>
             </div>
+            
+            <!-- Date of Dispatch | Estimated Time of Arrival -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <mat-form-field appearance="outline">
-                    <mat-label>Destination</mat-label>
+                    <mat-label>Date of Dispatch</mat-label>
+                    <input matInput [matDatepicker]="dispatchPicker" formControlName="dateOfDispatch">
+                    <mat-datepicker-toggle matSuffix [for]="dispatchPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #dispatchPicker></mat-datepicker>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>Estimated Arrival Time</mat-label>
+                    <input matInput [matDatepicker]="arrivalPicker" formControlName="estimatedArrival">
+                    <mat-datepicker-toggle matSuffix [for]="arrivalPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #arrivalPicker></mat-datepicker>
+                </mat-form-field>
+            </div>
+            
+            <!-- Country of Origin | Loading Port -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>Country of Origin</mat-label>
                     <mat-select formControlName="countryOfOrigin">
                         <mat-option>
                             <ngx-mat-select-search [formControl]="countrySearchCtrl" placeholderLabel="Search..."></ngx-mat-select-search>
@@ -204,18 +243,27 @@
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
-                    <mat-label>IDF Number</mat-label>
-                    <input matInput formControlName="gcrNumber" placeholder="e.g., ONWARD INTERNATIONAL">
-                </mat-form-field>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <mat-form-field appearance="outline">
-                    <mat-label>Port of Discharge</mat-label>
+                    <mat-label>Loading Port</mat-label>
                     <mat-select formControlName="loadingPort">
                         <mat-option>
                             <ngx-mat-select-search [formControl]="loadingPortSearchCtrl" placeholderLabel="Search..."></ngx-mat-select-search>
                         </mat-option>
                         <mat-option *ngFor="let port of filteredLoadingPorts | async" [value]="port.id">
+                            {{ port.name }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            
+            <!-- Port of Discharge | Final Destination -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>Port of Discharge</mat-label>
+                    <mat-select formControlName="portOfDischarge">
+                        <mat-option>
+                            <ngx-mat-select-search [formControl]="dischargePortSearchCtrl" placeholderLabel="Search..."></ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngFor="let port of filteredDischargePorts | async" [value]="port.id">
                             {{ port.name }}
                         </mat-option>
                     </mat-select>
@@ -229,31 +277,13 @@
                     </mat-select>
                 </mat-form-field>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <mat-form-field appearance="outline">
-                    <mat-label>Date of Dispatch</mat-label>
-                    <input matInput [matDatepicker]="dispatchPicker" formControlName="dateOfDispatch">
-                    <mat-datepicker-toggle matSuffix [for]="dispatchPicker"></mat-datepicker-toggle>
-                    <mat-datepicker #dispatchPicker></mat-datepicker>
-                </mat-form-field>
-                <mat-form-field appearance="outline">
-                    <mat-label>Estimated Time of Arrival</mat-label>
-                    <input matInput [matDatepicker]="arrivalPicker" formControlName="estimatedArrival">
-                    <mat-datepicker-toggle matSuffix [for]="arrivalPicker"></mat-datepicker-toggle>
-                    <mat-datepicker #arrivalPicker></mat-datepicker>
-                </mat-form-field>
-            </div>
             
-            <!-- Cargo Protection and Sum Insured -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <mat-form-field appearance="outline">
+            <!-- Cargo Protection (Read-only) -->
+            <div class="mb-4">
+                <mat-form-field appearance="outline" class="w-full">
                     <mat-label>Cargo Protection</mat-label>
                     <input matInput value="ICC (A) All Risk" readonly class="font-bold text-blue-900" style="cursor: default;">
                     <mat-icon matSuffix class="text-blue-600">verified_user</mat-icon>
-                </mat-form-field>
-                <mat-form-field appearance="outline">
-                    <mat-label>Sum Insured (KES)</mat-label>
-                    <input matInput type="number" formControlName="sumInsured" placeholder="3,500,000">
                 </mat-form-field>
             </div>
             <div>
