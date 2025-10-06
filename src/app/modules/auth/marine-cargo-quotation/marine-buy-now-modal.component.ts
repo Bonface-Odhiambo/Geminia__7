@@ -61,6 +61,7 @@ export interface MarineBuyNowData {
           flex-direction: column;
           height: 100%;
           width: 100%;
+          overflow: hidden;
         }
 
         .modal-header {
@@ -91,13 +92,15 @@ export interface MarineBuyNowData {
         }
 
         .modal-content {
-          flex-grow: 1;
-          overflow-y: hidden;
+          flex: 1;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
         }
 
         /* Compact form fields */
         ::ng-deep .mat-mdc-form-field {
-          margin-bottom: 0.5rem !important;
+          margin-bottom: 0.25rem !important;
         }
 
         ::ng-deep .mat-mdc-text-field-wrapper {
@@ -105,40 +108,57 @@ export interface MarineBuyNowData {
         }
 
         ::ng-deep .mdc-text-field {
-          padding: 8px 12px !important;
+          padding: 4px 8px !important;
         }
 
         ::ng-deep .mat-mdc-form-field-infix {
-          min-height: 40px !important;
-          padding-top: 8px !important;
-          padding-bottom: 8px !important;
+          min-height: 32px !important;
+          padding-top: 4px !important;
+          padding-bottom: 4px !important;
         }
 
         ::ng-deep .mat-mdc-floating-label {
-          top: 20px !important;
+          top: 16px !important;
         }
 
-        ::ng-deep .mat-mdc-form-field-hint-wrapper,
-        ::ng-deep .mat-mdc-form-field-error-wrapper {
-          padding: 0 !important;
-        }
-
+        /* Additional compact styles */
         .recalculation-notice {
             background-color: #eef2ff;
             color: #4338ca;
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-radius: 6px;
-            margin-bottom: 1rem;
-            font-size: 0.75rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.7rem;
             display: flex;
             align-items: center;
         }
 
         .recalculation-notice mat-icon {
-            margin-right: 6px;
-            font-size: 18px;
-            width: 18px;
-            height: 18px;
+            margin-right: 4px;
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Compact section headers */
+        h2 {
+            font-size: 0.875rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        /* Compact file upload areas */
+        .border-dashed {
+            padding: 8px !important;
+        }
+
+        /* Compact radio buttons */
+        ::ng-deep .mat-mdc-radio-button {
+            margin-right: 12px !important;
+        }
+
+        ::ng-deep .mat-mdc-form-field-hint-wrapper,
+        ::ng-deep .mat-mdc-form-field-error-wrapper {
+          padding: 0 !important;
         }
 
         .disabled-section {

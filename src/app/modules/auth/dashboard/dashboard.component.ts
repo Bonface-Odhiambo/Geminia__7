@@ -607,9 +607,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
   if(status==='DRAFT'){
   const dialogRef = this.dialog.open(MarineBuyNowModalComponent, {
-    width: isMobile ? '100vw' : '800px',
+    width: isMobile ? '100vw' : '900px',
     maxWidth: isMobile ? '100vw' : '90vw',
-    height: isMobile ? '100vh' : 'auto',
+    height: isMobile ? '100vh' : '85vh',
     maxHeight: isMobile ? '100vh' : '90vh',
     panelClass: ['payment-modal', ...(isMobile ? ['mobile-modal'] : [])],
     data: { quoteId: String(shippingId) } as MarineBuyNowData,

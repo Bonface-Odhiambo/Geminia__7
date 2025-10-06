@@ -12,12 +12,12 @@
     <mat-spinner></mat-spinner>
   </div>
 
-  <div *ngIf="!isLoading" class="modal-content bg-gray-50 py-4 px-4">
-    <div class="max-w-full mx-auto">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <div *ngIf="!isLoading" class="modal-content bg-gray-50 py-2 px-3">
+    <div class="max-w-full mx-auto h-full">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 h-full">
         <!-- Main Form Section -->
-        <div class="lg:col-span-2">
-          <div class="bg-white rounded-lg shadow-sm p-4">
+        <div class="lg:col-span-2 overflow-y-auto">
+          <div class="bg-white rounded-lg shadow-sm p-3">
             
             <div class="recalculation-notice">
                 <mat-icon>info_outline</mat-icon>
@@ -25,9 +25,9 @@
             </div>
 
           <!-- Document Uploads -->
-          <div class="mb-4">
-            <h2 class="text-base font-semibold text-gray-900 mb-3">Document Uploads</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+          <div class="mb-2">
+            <h2 class="text-sm font-semibold text-gray-900 mb-2">Document Uploads</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   IDF Document <span class="text-red-500">*</span>
@@ -55,7 +55,7 @@
                 <p *ngIf="duplicateFileErrors['invoice']" class="text-xs text-red-600 mt-1">{{ duplicateFileErrors['invoice'] }}</p>
               </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                       KRA PIN Certificate <span class="text-red-500">*</span>
@@ -92,13 +92,13 @@
           </div>
 
           <!-- Personal Details & KYC -->
-          <div class="mb-4" [class.disabled-section]="!shipmentForm.get('agreeToTerms')?.value">
-            <h2 class="text-base font-semibold text-gray-900 mb-3">Importer Details</h2>
+          <div class="mb-2" [class.disabled-section]="!shipmentForm.get('agreeToTerms')?.value">
+            <h2 class="text-sm font-semibold text-gray-900 mb-2">Importer Details</h2>
             <div *ngIf="!shipmentForm.get('agreeToTerms')?.value" class="disabled-overlay">
               <mat-icon>lock</mat-icon>
               <p>Please agree to the Terms of Use and Data Privacy Policy to enable this section</p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                 <mat-form-field appearance="outline">
                     <mat-label>ID Number</mat-label>
                     <input matInput formControlName="idNumber" placeholder="Enter ID number">
@@ -108,7 +108,7 @@
                     <input matInput formControlName="kraPin" placeholder="e.g., A012345678K">
                 </mat-form-field>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
               <mat-form-field appearance="outline">
                 <mat-label>First Name</mat-label>
                 <input matInput formControlName="firstName" placeholder="Enter first name">
@@ -118,7 +118,7 @@
                 <input matInput formControlName="lastName" placeholder="Enter last name">
               </mat-form-field>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                 <mat-form-field appearance="outline">
                     <mat-label>Email Address</mat-label>
                     <input matInput formControlName="emailAddress" placeholder="Enter email address">
@@ -141,15 +141,15 @@
           </div>
 
           <!-- Shipment Details -->
-          <div class="mb-4" [class.disabled-section]="!shipmentForm.get('agreeToTerms')?.value">
-            <h2 class="text-base font-semibold text-gray-900 mb-3">Shipment Details</h2>
+          <div class="mb-2" [class.disabled-section]="!shipmentForm.get('agreeToTerms')?.value">
+            <h2 class="text-sm font-semibold text-gray-900 mb-2">Shipment Details</h2>
             <div *ngIf="!shipmentForm.get('agreeToTerms')?.value" class="disabled-overlay">
               <mat-icon>lock</mat-icon>
               <p>Please agree to the Terms of Use and Data Privacy Policy to enable this section</p>
             </div>
             
             <!-- Mode of Shipment | Trade Type -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                 <mat-form-field appearance="outline">
                     <mat-label>Mode of Shipment</mat-label>
                     <mat-select formControlName="modeOfShipment">
@@ -167,7 +167,7 @@
             </div>
             
             <!-- Vessel Name | IDF Number -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                 <mat-form-field appearance="outline">
                     <mat-label>Vessel Name</mat-label>
                     <input matInput formControlName="vesselName" placeholder="Enter vessel name">
@@ -196,7 +196,7 @@
             </div>
             
             <!-- Select Category | Cargo Type -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                 <mat-form-field appearance="outline">
                     <mat-label>Select Category</mat-label>
                     <mat-select formControlName="selectCategory">
@@ -214,7 +214,7 @@
             </div>
             
             <!-- Date of Dispatch | Estimated Time of Arrival -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                 <mat-form-field appearance="outline">
                     <mat-label>Date of Dispatch</mat-label>
                     <input matInput [matDatepicker]="dispatchPicker" formControlName="dateOfDispatch">
@@ -230,7 +230,7 @@
             </div>
             
             <!-- Country of Origin | Loading Port -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                 <mat-form-field appearance="outline">
                     <mat-label>Country of Origin</mat-label>
                     <mat-select formControlName="countryOfOrigin">
@@ -256,7 +256,7 @@
             </div>
             
             <!-- Port of Discharge | Final Destination -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                 <mat-form-field appearance="outline">
                     <mat-label>Port of Discharge</mat-label>
                     <mat-select formControlName="portOfDischarge">
@@ -290,7 +290,7 @@
 
       <!-- Payment Summary Section -->
       <div class="lg:col-span-1">
-        <div class="bg-white rounded-lg shadow-sm p-4 sticky top-0" style="max-height: 85vh; overflow-y: auto;">
+        <div class="bg-white rounded-lg shadow-sm p-3 h-full flex flex-col">
           <h2 class="text-lg font-semibold text-gray-900 mb-3 text-center">Payment</h2>
           
           <!-- Cargo Protection Info -->
