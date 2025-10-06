@@ -1,3 +1,5 @@
+
+
 <div [formGroup]="shipmentForm">
   <div class="modal-header">
     <div class="header-icon-wrapper">
@@ -99,6 +101,16 @@
               <p>Please agree to the Terms of Use and Data Privacy Policy to enable this section</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>ID Number</mat-label>
+                    <input matInput formControlName="idNumber" placeholder="Enter ID number">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>KRA PIN</mat-label>
+                    <input matInput formControlName="kraPin" placeholder="e.g., A012345678K">
+                </mat-form-field>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <mat-form-field appearance="outline">
                 <mat-label>First Name</mat-label>
                 <input matInput formControlName="firstName" placeholder="Enter first name">
@@ -116,16 +128,6 @@
                 <mat-form-field appearance="outline">
                     <mat-label>Phone Number</mat-label>
                     <input matInput formControlName="phoneNumber" placeholder="Enter phone number">
-                </mat-form-field>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <mat-form-field appearance="outline">
-                    <mat-label>KRA PIN</mat-label>
-                    <input matInput formControlName="kraPin" placeholder="e.g., A012345678K">
-                </mat-form-field>
-                <mat-form-field appearance="outline">
-                    <mat-label>ID Number</mat-label>
-                    <input matInput formControlName="idNumber" placeholder="Enter ID number">
                 </mat-form-field>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -218,8 +220,6 @@
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <mat-form-field appearance="outline">
                     <mat-label>Final Destination</mat-label>
                     <mat-select formControlName="finalDestination">
@@ -243,8 +243,16 @@
                     <mat-datepicker #arrivalPicker></mat-datepicker>
                 </mat-form-field>
             </div>
-            <div class="mb-4">
-                <mat-form-field appearance="outline" class="w-full">
+            
+            <!-- Cargo Protection and Sum Insured -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 items-start">
+                <div class="flex flex-col">
+                    <label class="block text-sm font-medium text-gray-700" style="font-size: 12px; margin-bottom: 4px; line-height: 1.5; min-height: 18px;">Cargo Protection</label>
+                    <div class="bg-blue-50 border-2 border-blue-200 rounded px-4 flex items-center" style="height: 56px;">
+                        <span class="text-blue-900 font-bold">ICC (A) All Risk</span>
+                    </div>
+                </div>
+                <mat-form-field appearance="outline">
                     <mat-label>Sum Insured (KES)</mat-label>
                     <input matInput type="number" formControlName="sumInsured" placeholder="3,500,000">
                 </mat-form-field>
@@ -288,9 +296,20 @@
                 </mat-radio-button>
             </mat-radio-group>
           </div>
+          
+          <!-- M-Pesa Number Field -->
+          <div class="mb-6">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>M-Pesa Number</mat-label>
+              <input matInput formControlName="mpesaNumber" placeholder="254XXXXXXXXX">
+              <mat-icon matSuffix>phone</mat-icon>
+              <mat-hint>Enter your M-Pesa number, Get STK Push</mat-hint>
+            </mat-form-field>
+          </div>
+          
           <button mat-raised-button color="primary" class="w-full" (click)="onSubmit()" [disabled]="isSubmitting">
             <mat-spinner *ngIf="isSubmitting" diameter="24" class="mr-2"></mat-spinner>
-            {{ isSubmitting ? 'Processing...' : 'Proceed to Payment' }}
+            {{ isSubmitting ? 'Processing...' : 'Pay Now' }}
           </button>
         </div>
       </div>

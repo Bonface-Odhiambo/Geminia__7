@@ -240,6 +240,7 @@ export class MarineBuyNowModalComponent implements OnInit {
             estimatedArrival: ['', Validators.required],
             sumInsured: ['', [Validators.required, Validators.min(1)]],
             goodsDescription: ['', Validators.required],
+            mpesaNumber: ['', [Validators.required, Validators.pattern(/^254[0-9]{9}$/)]],
 
             // Payment
             paymentMethod: ['mpesa', Validators.required]

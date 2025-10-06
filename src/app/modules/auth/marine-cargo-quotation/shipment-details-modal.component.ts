@@ -12,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Subject, takeUntil, debounceTime } from 'rxjs';
 import { QuoteService } from '../shared/services/quote.service';
 import { UserService } from '../../../core/user/user.service';
@@ -40,6 +41,7 @@ export interface ShipmentDetailsData {
         MatTabsModule,
         MatDividerModule,
         MatCardModule,
+        MatCheckboxModule,
         PaymentModalComponent
     ],
     template: `
@@ -58,7 +60,93 @@ export interface ShipmentDetailsData {
                     <mat-tab label="Shipment Details">
                         <div class="tab-content">
                             <form [formGroup]="shipmentForm" class="p-4">
+                                
+                                <!-- Document Uploads Section -->
+                                <div class="document-uploads-section mb-6">
+                                    <h3 class="section-title">Document Uploads</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div class="document-upload-item">
+                                            <label class="document-label">
+                                                IDF Document <span class="required-mark">*</span>
+                                            </label>
+                                            <div class="upload-box">
+                                                <button type="button" mat-button color="primary" (click)="idfDocumentInput.click()">
+                                                    <mat-icon>upload_file</mat-icon>
+                                                    Choose file
+                                                </button>
+                                                <input hidden #idfDocumentInput type="file" (change)="onFileSelected($event, 'idfDocument')">
+                                                <p class="file-name">{{ shipmentForm.get('idfDocument')?.value?.name || 'No file chosen' }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="document-upload-item">
+                                            <label class="document-label">
+                                                Invoice <span class="required-mark">*</span>
+                                            </label>
+                                            <div class="upload-box">
+                                                <button type="button" mat-button color="primary" (click)="invoiceInput.click()">
+                                                    <mat-icon>upload_file</mat-icon>
+                                                    Choose file
+                                                </button>
+                                                <input hidden #invoiceInput type="file" (change)="onFileSelected($event, 'invoice')">
+                                                <p class="file-name">{{ shipmentForm.get('invoice')?.value?.name || 'No file chosen' }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="document-upload-item">
+                                            <label class="document-label">
+                                                KRA PIN Certificate <span class="required-mark">*</span>
+                                            </label>
+                                            <div class="upload-box">
+                                                <button type="button" mat-button color="primary" (click)="kraPinInput.click()">
+                                                    <mat-icon>upload_file</mat-icon>
+                                                    Choose file
+                                                </button>
+                                                <input hidden #kraPinInput type="file" (change)="onFileSelected($event, 'kraPinCertificate')">
+                                                <p class="file-name">{{ shipmentForm.get('kraPinCertificate')?.value?.name || 'No file chosen' }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="document-upload-item">
+                                            <label class="document-label">
+                                                National ID <span class="required-mark">*</span>
+                                            </label>
+                                            <div class="upload-box">
+                                                <button type="button" mat-button color="primary" (click)="nationalIdInput.click()">
+                                                    <mat-icon>upload_file</mat-icon>
+                                                    Choose file
+                                                </button>
+                                                <input hidden #nationalIdInput type="file" (change)="onFileSelected($event, 'nationalId')">
+                                                <p class="file-name">{{ shipmentForm.get('nationalId')?.value?.name || 'No file chosen' }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="terms-checkbox">
+                                        <mat-checkbox formControlName="agreeToTerms" color="primary"></mat-checkbox>
+                                        <label class="terms-label">
+                                            I agree to the <a href="#" class="terms-link">Terms of Use</a> and to the <a href="#" class="terms-link">Data Privacy Policy</a>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <mat-divider class="section-divider"></mat-divider>
+
+                                <!-- Shipment Information Fields -->
+                                <h3 class="section-title mt-6">Shipment Information</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+
+                                    <!-- Cargo Protection Field -->
+                                    <div class="cargo-protection-field md:col-span-2 mb-4">
+                                        <label class="cargo-protection-label">Cargo Protection:</label>
+                                        <span class="cargo-protection-value">ICC (A) All Risk</span>
+                                    </div>
+
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>Mode of Shipment</mat-label>
+                                        <input matInput formControlName="shippingModeName" (blur)="onFormChange()">
+                                    </mat-form-field>
+
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>Trade Type</mat-label>
+                                        <input matInput formControlName="importerType" (blur)="onFormChange()">
+                                    </mat-form-field>
 
                                     <mat-form-field appearance="outline">
                                         <mat-label>Vessel Name</mat-label>
@@ -77,27 +165,27 @@ export interface ShipmentDetailsData {
 
                                     <mat-form-field appearance="outline">
                                         <mat-label>Packaging Type</mat-label>
-                                        <input matInput formControlName="originPortName" (blur)="onFormChange()">
+                                        <input matInput formControlName="ucrNumber" (blur)="onFormChange()">
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
                                         <mat-label>Select Category</mat-label>
-                                        <input matInput formControlName="shippingModeName" (blur)="onFormChange()">
+                                        <input matInput formControlName="postalCode" (blur)="onFormChange()">
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
                                         <mat-label>Cargo Type</mat-label>
-                                        <input matInput formControlName="importerType" (blur)="onFormChange()">
-                                    </mat-form-field>
-
-                                    <mat-form-field appearance="outline">
-                                        <mat-label>Date of Dispatch</mat-label>
                                         <input matInput formControlName="consignmentNumber" (blur)="onFormChange()">
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
-                                        <mat-label>Estimated Time of Arrival</mat-label>
+                                        <mat-label>Date of Dispatch</mat-label>
                                         <input matInput formControlName="postalAddress" (blur)="onFormChange()">
+                                    </mat-form-field>
+
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>Estimated Time of Arrival</mat-label>
+                                        <input matInput formControlName="originPortName2" (blur)="onFormChange()">
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
@@ -107,7 +195,7 @@ export interface ShipmentDetailsData {
 
                                     <mat-form-field appearance="outline">
                                         <mat-label>Loading Port</mat-label>
-                                        <input matInput formControlName="postalCode" (blur)="onFormChange()">
+                                        <input matInput formControlName="originPortName" (blur)="onFormChange()">
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
@@ -118,6 +206,14 @@ export interface ShipmentDetailsData {
                                     <mat-form-field appearance="outline">
                                         <mat-label>Final Destination</mat-label>
                                         <input matInput formControlName="countyName" (blur)="onFormChange()">
+                                    </mat-form-field>
+
+                                    <!-- M-Pesa Number Field -->
+                                    <mat-form-field appearance="outline" class="md:col-span-2">
+                                        <mat-label>M-Pesa Number</mat-label>
+                                        <input matInput formControlName="phoneNumber" placeholder="254XXXXXXXXX" (blur)="onFormChange()">
+                                        <mat-icon matSuffix>phone</mat-icon>
+                                        <mat-hint>Enter your M-Pesa registered phone number</mat-hint>
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline" class="md:col-span-2">
@@ -567,6 +663,112 @@ export interface ShipmentDetailsData {
       ::ng-deep .info-snackbar .mat-mdc-snack-bar-action {
         color: white !important;
       }
+      
+      /* Document Upload Styles */
+      .document-uploads-section {
+        background-color: var(--bg-light);
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 24px;
+      }
+      
+      .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 16px;
+      }
+      
+      .document-upload-item {
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .document-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+      }
+      
+      .required-mark {
+        color: #ef4444;
+      }
+      
+      .upload-box {
+        border: 2px dashed var(--border-color);
+        border-radius: 8px;
+        padding: 16px;
+        text-align: center;
+        background-color: white;
+        transition: border-color 0.3s;
+      }
+      
+      .upload-box:hover {
+        border-color: var(--secondary-color);
+      }
+      
+      .upload-box button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 auto;
+      }
+      
+      .file-name {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-top: 8px;
+        margin-bottom: 0;
+      }
+      
+      .terms-checkbox {
+        display: flex;
+        align-items: center;
+        margin-top: 16px;
+      }
+      
+      .terms-label {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin-left: 8px;
+      }
+      
+      .terms-link {
+        color: var(--secondary-color);
+        text-decoration: none;
+      }
+      
+      .terms-link:hover {
+        text-decoration: underline;
+      }
+      
+      .section-divider {
+        margin: 24px 0;
+      }
+      
+      /* Cargo Protection Field in Shipment Form */
+      .cargo-protection-field {
+        background-color: #f0f9ff;
+        border: 1px solid #bae6fd;
+        border-radius: 8px;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      
+      .cargo-protection-label {
+        font-size: 16px;
+        font-weight: 600;
+        color: #0369a1;
+      }
+      
+      .cargo-protection-value {
+        font-size: 16px;
+        font-weight: 700;
+        color: #0c4a6e;
+      }
     `]
 })
 export class ShipmentDetailsModalComponent implements OnInit, OnDestroy {
@@ -599,6 +801,14 @@ export class ShipmentDetailsModalComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.shipmentForm = this.fb.group({
+            // Document Uploads
+            idfDocument: [null, Validators.required],
+            invoice: [null, Validators.required],
+            kraPinCertificate: [null, Validators.required],
+            nationalId: [null, Validators.required],
+            agreeToTerms: [false, Validators.requiredTrue],
+            
+            // Shipment Information
             shippingModeName: [''],
             importerType: [''],
             originCountryName: [''],
@@ -607,12 +817,14 @@ export class ShipmentDetailsModalComponent implements OnInit, OnDestroy {
             description: [''],
             vesselName: [''],
             originPortName: [''],
+            originPortName2: [''],
             destPortName: [''],
             countyName: [''],
             idfNumber: [''],
             ucrNumber: [''],
             postalAddress: [''],
-            postalCode: ['']
+            postalCode: [''],
+            phoneNumber: ['', [Validators.required, Validators.pattern(/^254[0-9]{9}$/)]]
         });
 
         this.paymentForm = this.fb.group({
@@ -628,6 +840,15 @@ export class ShipmentDetailsModalComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.destroy$.next();
         this.destroy$.complete();
+    }
+
+    // File selection handler
+    onFileSelected(event: Event, controlName: string): void {
+        const file = (event.target as HTMLInputElement).files?.[0];
+        if (file) {
+            this.shipmentForm.get(controlName)?.setValue(file);
+            this.shipmentForm.get(controlName)?.markAsTouched();
+        }
     }
 
     // Form change handler to trigger quote recalculation
