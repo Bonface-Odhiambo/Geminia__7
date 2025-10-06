@@ -245,13 +245,12 @@
             </div>
             
             <!-- Cargo Protection and Sum Insured -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 items-start">
-                <div class="flex flex-col">
-                    <label class="block text-sm font-medium text-gray-700" style="font-size: 12px; margin-bottom: 4px; line-height: 1.5; min-height: 18px;">Cargo Protection</label>
-                    <div class="bg-blue-50 border-2 border-blue-200 rounded px-4 flex items-center" style="height: 56px;">
-                        <span class="text-blue-900 font-bold">ICC (A) All Risk</span>
-                    </div>
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>Cargo Protection</mat-label>
+                    <input matInput value="ICC (A) All Risk" readonly class="font-bold text-blue-900" style="cursor: default;">
+                    <mat-icon matSuffix class="text-blue-600">verified_user</mat-icon>
+                </mat-form-field>
                 <mat-form-field appearance="outline">
                     <mat-label>Sum Insured (KES)</mat-label>
                     <input matInput type="number" formControlName="sumInsured" placeholder="3,500,000">
