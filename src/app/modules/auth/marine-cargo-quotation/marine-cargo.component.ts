@@ -2445,10 +2445,10 @@ export class MarineCargoQuotationComponent implements OnInit, OnDestroy, AfterVi
     private openKycShippingPaymentModal(quoteId: number,originCountry:string,shippingmodeId:number,sumassured:number,pinNo: string,idNo: string,status:string,phone:string,prem:number,refno:string): void {
         const isMobile = window.innerWidth < 768;
         this.dialog.open(KycShippingPaymentModalComponent, {
-            width: isMobile ? '100vw' : '800px',
-            maxWidth: isMobile ? '100vw' : '90vw',
+            width: isMobile ? '100vw' : '1400px',
+            maxWidth: isMobile ? '100vw' : '98vw',
             height: isMobile ? '100vh' : 'auto',
-            maxHeight: isMobile ? '100vh' : '90vh',
+            maxHeight: '95vh',
             panelClass: ['payment-modal', ...(isMobile ? ['mobile-modal'] : [])],
             data: {quoteId:quoteId,originCountry:originCountry,shippingmodeId:shippingmodeId,sumassured:sumassured,pinNo:pinNo,idNo:idNo},
             disableClose: true,

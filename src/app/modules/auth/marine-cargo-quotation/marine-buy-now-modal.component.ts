@@ -56,70 +56,89 @@ export interface MarineBuyNowData {
             --border-color: #e9ecef;
         }
 
+        .modal-container {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          width: 100%;
+        }
+
         .modal-header {
           display: flex;
           align-items: center;
-          padding: 20px 24px;
+          justify-content: center;
+          padding: 16px 24px;
           background-color: var(--primary-color);
           color: white;
           position: relative;
-        }
-
-        .header-icon-wrapper {
-          width: 48px;
-          height: 48px;
-          background-color: rgba(255, 255, 255, .1);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-right: 16px;
-        }
-
-        .header-icon-wrapper mat-icon {
-          color: var(--secondary-color);
-          font-size: 28px;
-          width: 28px;
-          height: 28px;
-        }
-
-        .header-text-content {
-          flex-grow: 1;
+          flex-shrink: 0;
+          width: 100%;
         }
 
         .modal-title {
           color: white;
-          font-size: 22px;
-          font-weight: 700;
+          font-size: 20px;
+          font-weight: 600;
           margin: 0;
-        }
-
-        .modal-subtitle {
-          font-size: 14px;
-          opacity: .8;
-          margin-top: 4px;
+          text-align: center;
         }
 
         .close-button {
           position: absolute;
-          top: 12px;
-          right: 12px;
+          top: 8px;
+          right: 8px;
           color: white;
+        }
+
+        .modal-content {
+          flex-grow: 1;
+          overflow-y: hidden;
+        }
+
+        /* Compact form fields */
+        ::ng-deep .mat-mdc-form-field {
+          margin-bottom: 0.5rem !important;
+        }
+
+        ::ng-deep .mat-mdc-text-field-wrapper {
+          padding-bottom: 0 !important;
+        }
+
+        ::ng-deep .mdc-text-field {
+          padding: 8px 12px !important;
+        }
+
+        ::ng-deep .mat-mdc-form-field-infix {
+          min-height: 40px !important;
+          padding-top: 8px !important;
+          padding-bottom: 8px !important;
+        }
+
+        ::ng-deep .mat-mdc-floating-label {
+          top: 20px !important;
+        }
+
+        ::ng-deep .mat-mdc-form-field-hint-wrapper,
+        ::ng-deep .mat-mdc-form-field-error-wrapper {
+          padding: 0 !important;
         }
 
         .recalculation-notice {
             background-color: #eef2ff;
             color: #4338ca;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            font-size: 0.875rem;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-size: 0.75rem;
             display: flex;
             align-items: center;
         }
 
         .recalculation-notice mat-icon {
-            margin-right: 8px;
+            margin-right: 6px;
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
         }
 
         .disabled-section {
@@ -668,5 +687,15 @@ export class MarineBuyNowModalComponent implements OnInit {
                 }
             }
         });
+    }
+
+    openTermsOfUse(event: Event): void {
+        event.preventDefault();
+        window.open('https://geminiainsurance.com/terms-of-use', '_blank');
+    }
+
+    openPrivacyPolicy(event: Event): void {
+        event.preventDefault();
+        window.open('https://geminiainsurance.com/privacy-policy', '_blank');
     }
 }

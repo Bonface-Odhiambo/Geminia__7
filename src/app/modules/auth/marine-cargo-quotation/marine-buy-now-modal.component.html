@@ -1,13 +1,8 @@
 
 
-<div [formGroup]="shipmentForm">
+<div [formGroup]="shipmentForm" class="modal-container">
   <div class="modal-header">
-    <div class="header-icon-wrapper">
-      <mat-icon>local_shipping</mat-icon>
-    </div>
-    <div class="header-text-content">
-      <h1 mat-dialog-title class="modal-title">Shipment Information</h1>
-    </div>
+    <h1 mat-dialog-title class="modal-title">Shipment Information</h1>
     <button mat-icon-button (click)="closeDialog()" class="close-button" aria-label="Close dialog">
       <mat-icon>close</mat-icon>
     </button>
@@ -17,12 +12,12 @@
     <mat-spinner></mat-spinner>
   </div>
 
-  <div *ngIf="!isLoading" class="min-h-screen bg-gray-50 py-8 px-4">
-    <div class="max-w-7xl mx-auto">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div *ngIf="!isLoading" class="modal-content bg-gray-50 py-4 px-4">
+    <div class="max-w-full mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <!-- Main Form Section -->
         <div class="lg:col-span-2">
-          <div class="bg-white rounded-lg shadow-sm p-6">
+          <div class="bg-white rounded-lg shadow-sm p-4">
             
             <div class="recalculation-notice">
                 <mat-icon>info_outline</mat-icon>
@@ -30,15 +25,15 @@
             </div>
 
           <!-- Document Uploads -->
-          <div class="mb-8">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4">Document Uploads</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div class="mb-4">
+            <h2 class="text-base font-semibold text-gray-900 mb-3">Document Uploads</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   IDF Document <span class="text-red-500">*</span>
                 </label>
-                <div class="border-2 border-dashed border-gray-300 rounded-md p-4 text-center">
-                  <button type="button" mat-button color="primary" (click)="idfDocument.click()">
+                <div class="border-2 border-dashed border-gray-300 rounded-md p-3 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors" (click)="idfDocument.click()">
+                  <button type="button" mat-button color="primary">
                     Choose file
                   </button>
                   <input hidden #idfDocument type="file" (change)="onFileSelected($event, 'idfDocument')">
@@ -50,8 +45,8 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   Invoice <span class="text-red-500">*</span>
                 </label>
-                <div class="border-2 border-dashed border-gray-300 rounded-md p-4 text-center">
-                  <button type="button" mat-button color="primary" (click)="invoice.click()">
+                <div class="border-2 border-dashed border-gray-300 rounded-md p-3 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors" (click)="invoice.click()">
+                  <button type="button" mat-button color="primary">
                     Choose file
                   </button>
                   <input hidden #invoice type="file" (change)="onFileSelected($event, 'invoice')">
@@ -60,13 +55,13 @@
                 <p *ngIf="duplicateFileErrors['invoice']" class="text-xs text-red-600 mt-1">{{ duplicateFileErrors['invoice'] }}</p>
               </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                       KRA PIN Certificate <span class="text-red-500">*</span>
                     </label>
-                    <div class="border-2 border-dashed border-gray-300 rounded-md p-4 text-center">
-                      <button type="button" mat-button color="primary" (click)="kraPinCertificate.click()">
+                    <div class="border-2 border-dashed border-gray-300 rounded-md p-3 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors" (click)="kraPinCertificate.click()">
+                      <button type="button" mat-button color="primary">
                         Choose file
                       </button>
                       <input hidden #kraPinCertificate type="file" (change)="onFileSelected($event, 'kraPinCertificate')">
@@ -78,8 +73,8 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">
                       National ID <span class="text-red-500">*</span>
                     </label>
-                    <div class="border-2 border-dashed border-gray-300 rounded-md p-4 text-center">
-                      <button type="button" mat-button color="primary" (click)="nationalId.click()">
+                    <div class="border-2 border-dashed border-gray-300 rounded-md p-3 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors" (click)="nationalId.click()">
+                      <button type="button" mat-button color="primary">
                         Choose file
                       </button>
                       <input hidden #nationalId type="file" (change)="onFileSelected($event, 'nationalId')">
@@ -91,19 +86,19 @@
             <div class="flex items-center">
                 <mat-checkbox formControlName="agreeToTerms" color="primary"></mat-checkbox>
                 <label class="text-sm text-gray-600 ml-2">
-                  I agree to the <a href="#" class="text-blue-600 hover:underline">Terms of Use</a> and to the <a href="#" class="text-blue-600 hover:underline">Data Privacy Policy</a>
+                  I agree to the <a (click)="openTermsOfUse($event)" class="text-blue-600 hover:underline cursor-pointer">Terms of Use</a> and to the <a (click)="openPrivacyPolicy($event)" class="text-blue-600 hover:underline cursor-pointer">Data Privacy Policy</a>
                 </label>
             </div>
           </div>
 
           <!-- Personal Details & KYC -->
-          <div class="mb-8" [class.disabled-section]="!shipmentForm.get('agreeToTerms')?.value">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4">Importer Details</h2>
+          <div class="mb-4" [class.disabled-section]="!shipmentForm.get('agreeToTerms')?.value">
+            <h2 class="text-base font-semibold text-gray-900 mb-3">Importer Details</h2>
             <div *ngIf="!shipmentForm.get('agreeToTerms')?.value" class="disabled-overlay">
               <mat-icon>lock</mat-icon>
               <p>Please agree to the Terms of Use and Data Privacy Policy to enable this section</p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                 <mat-form-field appearance="outline">
                     <mat-label>ID Number</mat-label>
                     <input matInput formControlName="idNumber" placeholder="Enter ID number">
@@ -113,7 +108,7 @@
                     <input matInput formControlName="kraPin" placeholder="e.g., A012345678K">
                 </mat-form-field>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
               <mat-form-field appearance="outline">
                 <mat-label>First Name</mat-label>
                 <input matInput formControlName="firstName" placeholder="Enter first name">
@@ -123,7 +118,7 @@
                 <input matInput formControlName="lastName" placeholder="Enter last name">
               </mat-form-field>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                 <mat-form-field appearance="outline">
                     <mat-label>Email Address</mat-label>
                     <input matInput formControlName="emailAddress" placeholder="Enter email address">
@@ -133,7 +128,7 @@
                     <input matInput formControlName="phoneNumber" placeholder="Enter phone number">
                 </mat-form-field>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <mat-form-field appearance="outline">
                     <mat-label>Postal Address</mat-label>
                     <input matInput formControlName="streetAddress" placeholder="Enter your postal address">
@@ -146,15 +141,15 @@
           </div>
 
           <!-- Shipment Details -->
-          <div class="mb-8" [class.disabled-section]="!shipmentForm.get('agreeToTerms')?.value">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4">Shipment Details</h2>
+          <div class="mb-4" [class.disabled-section]="!shipmentForm.get('agreeToTerms')?.value">
+            <h2 class="text-base font-semibold text-gray-900 mb-3">Shipment Details</h2>
             <div *ngIf="!shipmentForm.get('agreeToTerms')?.value" class="disabled-overlay">
               <mat-icon>lock</mat-icon>
               <p>Please agree to the Terms of Use and Data Privacy Policy to enable this section</p>
             </div>
             
             <!-- Mode of Shipment | Trade Type -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                 <mat-form-field appearance="outline">
                     <mat-label>Mode of Shipment</mat-label>
                     <mat-select formControlName="modeOfShipment">
@@ -172,7 +167,7 @@
             </div>
             
             <!-- Vessel Name | IDF Number -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                 <mat-form-field appearance="outline">
                     <mat-label>Vessel Name</mat-label>
                     <input matInput formControlName="vesselName" placeholder="Enter vessel name">
@@ -183,21 +178,16 @@
                 </mat-form-field>
             </div>
             
-            <!-- ICC(A) All Risk | Sum Insured -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <mat-form-field appearance="outline">
-                    <mat-label>Cargo Protection</mat-label>
-                    <input matInput value="ICC (A) All Risk" readonly class="font-bold text-blue-900" style="cursor: default;">
-                    <mat-icon matSuffix class="text-blue-600">verified_user</mat-icon>
-                </mat-form-field>
-                <mat-form-field appearance="outline">
+            <!-- Sum Insured (Full Width) -->
+            <div class="mb-3">
+                <mat-form-field appearance="outline" class="w-full">
                     <mat-label>Sum Insured (KES)</mat-label>
                     <input matInput type="number" formControlName="sumInsured" placeholder="3,500,000">
                 </mat-form-field>
             </div>
             
             <!-- Packaging Type -->
-            <div class="mb-4">
+            <div class="mb-3">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Packaging Type</label>
                 <mat-radio-group formControlName="commodityType" color="primary">
                   <mat-radio-button value="Containerized" class="mr-4">Containerized</mat-radio-button>
@@ -206,7 +196,7 @@
             </div>
             
             <!-- Select Category | Cargo Type -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                 <mat-form-field appearance="outline">
                     <mat-label>Select Category</mat-label>
                     <mat-select formControlName="selectCategory">
@@ -224,7 +214,7 @@
             </div>
             
             <!-- Date of Dispatch | Estimated Time of Arrival -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                 <mat-form-field appearance="outline">
                     <mat-label>Date of Dispatch</mat-label>
                     <input matInput [matDatepicker]="dispatchPicker" formControlName="dateOfDispatch">
@@ -240,7 +230,7 @@
             </div>
             
             <!-- Country of Origin | Loading Port -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                 <mat-form-field appearance="outline">
                     <mat-label>Country of Origin</mat-label>
                     <mat-select formControlName="countryOfOrigin">
@@ -266,7 +256,7 @@
             </div>
             
             <!-- Port of Discharge | Final Destination -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                 <mat-form-field appearance="outline">
                     <mat-label>Port of Discharge</mat-label>
                     <mat-select formControlName="portOfDischarge">
@@ -291,7 +281,7 @@
             <div>
                 <mat-form-field appearance="outline" class="w-full">
                     <mat-label>Description of Goods</mat-label>
-                    <textarea matInput formControlName="goodsDescription" placeholder="Describe the type of goods, their value, quantity, packaging details" rows="4"></textarea>
+                    <textarea matInput formControlName="goodsDescription" placeholder="Describe the type of goods, their value, quantity, packaging details" rows="2"></textarea>
                 </mat-form-field>
             </div>
           </div>
@@ -300,21 +290,21 @@
 
       <!-- Payment Summary Section -->
       <div class="lg:col-span-1">
-        <div class="bg-white rounded-lg shadow-sm p-6 sticky top-8">
-          <h2 class="text-lg font-semibold text-gray-900 mb-4">Payment</h2>
+        <div class="bg-white rounded-lg shadow-sm p-4 sticky top-0" style="max-height: 85vh; overflow-y: auto;">
+          <h2 class="text-lg font-semibold text-gray-900 mb-3 text-center">Payment</h2>
           
           <!-- Cargo Protection Info -->
-          <div class="mb-4 pb-4 border-b">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-medium text-gray-700">Cargo Protection</span>
-              <mat-icon class="text-blue-600" style="font-size: 20px; width: 20px; height: 20px;">verified_user</mat-icon>
+          <div class="mb-3 pb-3 border-b">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-medium text-gray-700">Cargo Protection</span>
+              <mat-icon class="text-blue-600" style="font-size: 18px; width: 18px; height: 18px;">verified_user</mat-icon>
             </div>
-            <div class="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
-              <span class="text-blue-900 font-bold text-sm">ICC (A) All Risk</span>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg px-2 py-1">
+              <span class="text-blue-900 font-bold text-xs">ICC (A) All Risk</span>
             </div>
           </div>
           
-          <div class="space-y-3 mb-4 pb-4 border-b">
+          <div class="space-y-2 mb-3 pb-3 border-b">
             <div class="flex justify-between text-sm">
               <span class="text-gray-600">Sum Insured</span>
               <span class="font-medium">KES {{ shipmentForm.get('sumInsured')?.value | number:'1.2-2' }}</span>
@@ -336,13 +326,13 @@
               <span class="font-medium">KES {{ (premium * 0.0005) | number:'1.2-2' }}</span>
             </div>
           </div>
-          <div class="flex justify-between text-base font-semibold mb-6">
+          <div class="flex justify-between text-base font-semibold mb-4">
             <span>Total Amount</span>
             <span class="text-blue-600">KES {{ total | number:'1.2-2' }}</span>
           </div>
           
           <!-- M-Pesa Logo -->
-          <div class="mb-6 flex justify-center">
+          <div class="mb-4 flex justify-center">
             <div class="bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm">
               <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvbyhbvv75IhuEeL501ZQh_tuu3CwZ6EZWGw&s" 
                    alt="M-Pesa" 
@@ -351,11 +341,10 @@
           </div>
           
           <!-- M-Pesa Number Field -->
-          <div class="mb-6">
+          <div class="mb-4">
             <mat-form-field appearance="outline" class="w-full">
               <mat-label>M-Pesa Number</mat-label>
               <input matInput formControlName="mpesaNumber" placeholder="254XXXXXXXXX">
-              <mat-icon matSuffix>phone</mat-icon>
               <mat-hint>Enter your M-Pesa number, Get STK Push</mat-hint>
             </mat-form-field>
           </div>
