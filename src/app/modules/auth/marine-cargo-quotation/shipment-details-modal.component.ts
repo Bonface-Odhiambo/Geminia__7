@@ -71,7 +71,7 @@ export interface ShipmentDetailsData {
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
-                                        <mat-label>Country of Origin</mat-label>
+                                        <mat-label>Destination</mat-label>
                                         <input matInput formControlName="originCountryName" (blur)="onFormChange()">
                                     </mat-form-field>
 
@@ -91,12 +91,12 @@ export interface ShipmentDetailsData {
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
-                                        <mat-label>Vessel Name</mat-label>
+                                        <mat-label>Marine Cargo Type</mat-label>
                                         <input matInput formControlName="vesselName" (blur)="onFormChange()">
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
-                                        <mat-label>Loading Port</mat-label>
+                                        <mat-label>Marine Packaging Type</mat-label>
                                         <input matInput formControlName="originPortName" (blur)="onFormChange()">
                                     </mat-form-field>
 
@@ -106,18 +106,13 @@ export interface ShipmentDetailsData {
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
-                                        <mat-label>Final Destination (County)</mat-label>
+                                        <mat-label>Final Destination</mat-label>
                                         <input matInput formControlName="countyName" (blur)="onFormChange()">
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
                                         <mat-label>IDF Number</mat-label>
                                         <input matInput formControlName="idfNumber" (blur)="onFormChange()">
-                                    </mat-form-field>
-
-                                    <mat-form-field appearance="outline">
-                                        <mat-label>UCR Number</mat-label>
-                                        <input matInput formControlName="ucrNumber" (blur)="onFormChange()">
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
@@ -143,17 +138,21 @@ export interface ShipmentDetailsData {
                                     <mat-card-header>
                                         <mat-card-title class="premium-title">
                                             <mat-icon class="premium-icon">receipt</mat-icon>
-                                            Premium Calculation
+                                            Payment
                                         </mat-card-title>
                                     </mat-card-header>
                                     <mat-card-content>
                                         <div class="premium-breakdown" *ngIf="premiumCalculation">
                                             <div class="premium-row">
+                                                <span class="premium-label">Sum Insured:</span>
+                                                <span class="premium-value">KES {{ premiumCalculation.sumInsured | number:'1.2-2' }}</span>
+                                            </div>
+                                            <div class="premium-row">
                                                 <span class="premium-label">Base Premium:</span>
                                                 <span class="premium-value">KES {{ premiumCalculation.basePremium | number:'1.2-2' }}</span>
                                             </div>
                                             <div class="premium-row">
-                                                <span class="premium-label">PHCF (2.5%):</span>
+                                                <span class="premium-label">PHCF (0.25%):</span>
                                                 <span class="premium-value">KES {{ premiumCalculation.phcf | number:'1.2-2' }}</span>
                                             </div>
                                             <div class="premium-row">
@@ -161,7 +160,7 @@ export interface ShipmentDetailsData {
                                                 <span class="premium-value">KES {{ premiumCalculation.trainingLevy | number:'1.2-2' }}</span>
                                             </div>
                                             <div class="premium-row">
-                                                <span class="premium-label">Stamp Duty:</span>
+                                                <span class="premium-label">Stamp Duty (0.05%):</span>
                                                 <span class="premium-value">KES {{ premiumCalculation.stampDuty | number:'1.2-2' }}</span>
                                             </div>
                                             <mat-divider class="premium-divider"></mat-divider>
@@ -603,12 +602,13 @@ export class ShipmentDetailsModalComponent implements OnInit, OnDestroy {
         setTimeout(() => {
             const sumInsured = this.shipmentForm.get('sumassured')?.value || 0;
             const basePremium = sumInsured * 0.015; // 1.5% base rate
-            const phcf = basePremium * 0.025; // 2.5% PHCF
+            const phcf = basePremium * 0.0025; // 0.25% PHCF
             const trainingLevy = basePremium * 0.002; // 0.2% Training Levy
-            const stampDuty = 40; // Fixed stamp duty
+            const stampDuty = basePremium * 0.0005; // 0.05% Stamp Duty
             const totalPayable = basePremium + phcf + trainingLevy + stampDuty;
 
             this.premiumCalculation = {
+                sumInsured,
                 basePremium,
                 phcf,
                 trainingLevy,

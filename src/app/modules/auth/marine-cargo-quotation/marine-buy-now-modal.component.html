@@ -5,7 +5,7 @@
     </div>
     <div class="header-text-content">
       <h1 mat-dialog-title class="modal-title">Shipment Information</h1>
-      <p class="modal-subtitle">Fill the form to process your shipment insurance</p>
+      <p class="modal-subtitle">Fill Shipment Information</p>
     </div>
     <button mat-icon-button (click)="closeDialog()" class="close-button" aria-label="Close dialog">
       <mat-icon>close</mat-icon>
@@ -83,7 +83,7 @@
                     </div>
                   </div>
             </div>
-            <div class="flex items-start">
+            <div class="flex items-center">
                 <mat-checkbox formControlName="agreeToTerms" color="primary"></mat-checkbox>
                 <label class="text-sm text-gray-600 ml-2">
                   I agree to the <a href="#" class="text-blue-600 hover:underline">Terms of Use</a> and to the <a href="#" class="text-blue-600 hover:underline">Data Privacy Policy</a>
@@ -93,7 +93,7 @@
 
           <!-- Personal Details & KYC -->
           <div class="mb-8">
-            <h2 class="text-lg font-semibold text-gray-900 mb-4">Personal Details & KYC</h2>
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Importer Details</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <mat-form-field appearance="outline">
                 <mat-label>First Name</mat-label>
@@ -126,8 +126,8 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <mat-form-field appearance="outline">
-                    <mat-label>Street Address</mat-label>
-                    <input matInput formControlName="streetAddress" placeholder="Enter your street address">
+                    <mat-label>Postal Address</mat-label>
+                    <input matInput formControlName="streetAddress" placeholder="Enter your postal address">
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                     <mat-label>Postal Code</mat-label>
@@ -161,7 +161,7 @@
                     <input matInput formControlName="product" placeholder="e.g., All HS Codes">
                 </mat-form-field>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Commodity Type</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Marine Packaging Type</label>
                     <mat-radio-group formControlName="commodityType" color="primary">
                       <mat-radio-button value="Containerized" class="mr-4">Containerized</mat-radio-button>
                       <mat-radio-button value="Non Containerized">Non Containerized</mat-radio-button>
@@ -170,7 +170,7 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <mat-form-field appearance="outline">
-                    <mat-label>Sales Category</mat-label>
+                    <mat-label>Marine Cargo Type</mat-label>
                     <mat-select formControlName="salesCategory">
                       <mat-option value="wholesale">Wholesale</mat-option>
                       <mat-option value="retail">Retail</mat-option>
@@ -183,7 +183,7 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <mat-form-field appearance="outline">
-                    <mat-label>Country of Origin</mat-label>
+                    <mat-label>Destination</mat-label>
                     <mat-select formControlName="countryOfOrigin">
                         <mat-option>
                             <ngx-mat-select-search [formControl]="countrySearchCtrl" placeholderLabel="Search..."></ngx-mat-select-search>
@@ -194,17 +194,13 @@
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
-                    <mat-label>GCR Number</mat-label>
+                    <mat-label>IDF Number</mat-label>
                     <input matInput formControlName="gcrNumber" placeholder="e.g., ONWARD INTERNATIONAL">
                 </mat-form-field>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <mat-form-field appearance="outline">
-                    <mat-label>ID Number</mat-label>
-                    <input matInput formControlName="idNumber2" placeholder="e.g., 205842846505495">
-                </mat-form-field>
-                <mat-form-field appearance="outline">
-                    <mat-label>Loading Port</mat-label>
+                    <mat-label>Port of Discharge</mat-label>
                     <mat-select formControlName="loadingPort">
                         <mat-option>
                             <ngx-mat-select-search [formControl]="loadingPortSearchCtrl" placeholderLabel="Search..."></ngx-mat-select-search>
@@ -217,24 +213,7 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <mat-form-field appearance="outline">
-                    <mat-label>Port of Discharge</mat-label>
-                    <mat-select formControlName="portOfDischarge">
-                        <mat-option>
-                            <ngx-mat-select-search [formControl]="dischargePortSearchCtrl" placeholderLabel="Search..."></ngx-mat-select-search>
-                        </mat-option>
-                        <mat-option *ngFor="let port of filteredDischargePorts | async" [value]="port.id">
-                            {{ port.name }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <mat-form-field appearance="outline">
-                    <mat-label>Vessel Name</mat-label>
-                    <input matInput formControlName="vesselName" placeholder="e.g., MSC Sindhura">
-                </mat-form-field>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <mat-form-field appearance="outline">
-                    <mat-label>Final Destination (County)</mat-label>
+                    <mat-label>Final Destination</mat-label>
                     <mat-select formControlName="finalDestination">
                         <mat-option *ngFor="let county of kenyanCounties" [value]="county">
                             {{ county }}
