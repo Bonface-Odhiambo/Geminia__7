@@ -62,6 +62,7 @@ export interface MarineBuyNowData {
           height: 100%;
           width: 100%;
           overflow: hidden;
+          position: relative;
         }
 
         .modal-header {
@@ -93,9 +94,77 @@ export interface MarineBuyNowData {
 
         .modal-content {
           flex: 1;
-          overflow: hidden;
+          overflow-y: auto;
+          overflow-x: hidden;
           display: flex;
           flex-direction: column;
+          position: relative;
+        }
+
+        /* Ensure content starts from the top */
+        .modal-content > div {
+          display: flex;
+          flex-direction: column;
+        }
+
+        /* Grid container should not restrict height on desktop */
+        .max-w-full.mx-auto.h-full {
+          height: auto !important;
+          min-height: 100%;
+        }
+
+        /* Main grid should allow content to flow naturally */
+        .grid.grid-cols-1.lg\\:grid-cols-3 {
+          height: auto !important;
+          min-height: 100%;
+        }
+
+        /* Form section should scroll independently */
+        .lg\\:col-span-2.overflow-y-auto {
+          max-height: calc(92vh - 100px);
+          overflow-y: auto;
+        }
+
+        /* Payment section should have proper height on desktop */
+        @media (min-width: 1024px) {
+          .lg\\:col-span-1 .bg-white.rounded-lg.shadow-sm {
+            max-height: calc(92vh - 100px);
+            overflow-y: auto;
+          }
+
+          /* Ensure form section starts from top */
+          .lg\\:col-span-2.overflow-y-auto {
+            align-self: flex-start;
+          }
+
+          .lg\\:col-span-1 {
+            align-self: flex-start;
+          }
+        }
+
+        /* Smooth scrolling */
+        .overflow-y-auto {
+          scroll-behavior: smooth;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        /* Custom scrollbar for better UX */
+        .overflow-y-auto::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 4px;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-thumb {
+          background: #888;
+          border-radius: 4px;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+          background: #555;
         }
 
         /* Compact form fields */
