@@ -16,7 +16,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { QuoteService } from '../shared/services/quote.service';
 import { UserService } from 'app/core/user/user.service';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
-import { ReplaySubject, Subject } from 'rxjs';
+import { ReplaySubject, Subject, EMPTY } from 'rxjs';
 import { take, takeUntil, debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
 
@@ -114,31 +114,70 @@ export interface MarineBuyNowData {
         }
 
         /* Main grid should allow content to flow naturally */
-        .grid.grid-cols-1.lg\\:grid-cols-3 {
+        .grid.grid-cols-1.lg\\:grid-cols-12 {
           height: auto !important;
           min-height: 100%;
         }
 
-        /* Form section should scroll independently */
-        .lg\\:col-span-2.overflow-y-auto {
+        /* Form section should scroll independently - now takes 7/12 of width */
+        .lg\\:col-span-7.overflow-y-auto {
           max-height: calc(92vh - 100px);
           overflow-y: auto;
         }
 
         /* Payment section should have proper height on desktop */
         @media (min-width: 1024px) {
-          .lg\\:col-span-1 .bg-white.rounded-lg.shadow-sm {
-            max-height: calc(92vh - 100px);
-            overflow-y: auto;
+          /* Payment section - no scrollbar, show all content - now takes 5/12 of width */
+          .lg\\:col-span-5 .bg-white.rounded-lg.shadow-sm {
+            height: auto !important;
+            max-height: none !important;
+            overflow-y: visible !important;
           }
 
           /* Ensure form section starts from top */
-          .lg\\:col-span-2.overflow-y-auto {
+          .lg\\:col-span-7.overflow-y-auto {
             align-self: flex-start;
           }
 
-          .lg\\:col-span-1 {
+          .lg\\:col-span-5 {
             align-self: flex-start;
+          }
+
+          /* Compact payment section spacing */
+          .lg\\:col-span-5 .bg-white.rounded-lg.shadow-sm {
+            padding: 0.5rem !important;
+          }
+
+          .lg\\:col-span-5 h2 {
+            font-size: 1rem !important;
+            margin-bottom: 0.5rem !important;
+          }
+
+          .lg\\:col-span-5 .mb-2 {
+            margin-bottom: 0.5rem !important;
+          }
+
+          .lg\\:col-span-5 .pb-2 {
+            padding-bottom: 0.5rem !important;
+          }
+
+          .lg\\:col-span-5 .space-y-1 > * + * {
+            margin-top: 0.25rem !important;
+          }
+
+          /* Reduce M-Pesa logo size */
+          .lg\\:col-span-5 img {
+            height: 1.5rem !important;
+          }
+
+          .lg\\:col-span-5 .border-gray-200.rounded-xl {
+            padding: 0.25rem 0.75rem !important;
+          }
+
+          /* Make payment section sticky so it stays visible while scrolling form */
+          .lg\\:col-span-5 {
+            position: sticky;
+            top: 0;
           }
         }
 
@@ -762,14 +801,22 @@ export class MarineBuyNowModalComponent implements OnInit {
             debounceTime(500),
             distinctUntilChanged(),
             switchMap((sumInsured) => {
+                // Only recalculate if sumInsured has a valid value
+                if (!sumInsured || sumInsured <= 0) {
+                    // Return empty observable to skip recalculation
+                    return EMPTY;
+                }
                 this.isSubmitting = true;
                 return this.quoteService.recalculateMarinePremium(this.data.quoteId, sumInsured);
             })
         ).subscribe({
             next: (premiumDetails) => {
-                this.premium = premiumDetails.premium;
-                this.tax = premiumDetails.tax;
-                this.total = premiumDetails.total;
+                // Only update if we received valid data
+                if (premiumDetails) {
+                    this.premium = premiumDetails.premium;
+                    this.tax = premiumDetails.tax;
+                    this.total = premiumDetails.total;
+                }
                 this.isSubmitting = false;
             },
             error: (err) => {

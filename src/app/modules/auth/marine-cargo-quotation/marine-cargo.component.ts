@@ -14,7 +14,8 @@ import {
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { ShareModalComponent } from './share-modal.component';
-import { ShipmentDetailsModalComponent } from './shipment-details-modal.component'; 
+import { ShipmentDetailsModalComponent } from './shipment-details-modal.component';
+import { MarineBuyNowModalComponent, MarineBuyNowData } from './marine-buy-now-modal.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -2427,19 +2428,54 @@ export class MarineCargoQuotationComponent implements OnInit, OnDestroy, AfterVi
                 this.showToast('Error: No quote available for payment. Please generate a quote first.');
                 return;
             }
-            this.userService.getSingleQuote(this.quoteResult.id).subscribe(data => {
-                this.openKycShippingPaymentModal(data.quoteId,data.originCountry,data.shippingmodeId,data.sumassured,data.pinNumber,data.idNumber,data.status,
-                    data.phoneNo,data.netprem,data.refno);
-            });
-
-
-
+            // Open the Marine Buy Now Modal instead of KYC modal
+            this.openMarineBuyNowModal(this.quoteResult.id);
         } else {
             this.showToast('Please log in or register to complete your purchase.');
             setTimeout(() => {
                 this.router.navigate(['/']);
             }, 2500);
         }
+    }
+
+    private openMarineBuyNowModal(quoteId: string): void {
+        const isMobile = window.innerWidth <= 480;
+
+        // Add body class to prevent background scrolling on mobile
+        if (isMobile) {
+            document.body.classList.add('modal-open');
+        }
+
+        const dialogRef = this.dialog.open(MarineBuyNowModalComponent, {
+            width: isMobile ? '100vw' : '900px',
+            maxWidth: isMobile ? '100vw' : '90vw',
+            height: isMobile ? '100vh' : '92vh',
+            maxHeight: isMobile ? '100vh' : '95vh',
+            panelClass: ['payment-modal', ...(isMobile ? ['mobile-modal'] : [])],
+            data: { quoteId: String(quoteId) } as MarineBuyNowData,
+            disableClose: true,
+            hasBackdrop: true,
+            backdropClass: 'payment-modal-backdrop',
+            // Add these mobile-specific options
+            ...(isMobile && {
+                position: { top: '0px', left: '0px' },
+                autoFocus: false,
+                restoreFocus: false
+            })
+        });
+
+        dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(result => {
+            // Remove body class when modal closes
+            if (isMobile) {
+                document.body.classList.remove('modal-open');
+            }
+            
+            // Optionally refresh data or navigate after successful payment
+            if (result?.success) {
+                this.showToast('Payment completed successfully!');
+                // You can add additional logic here if needed
+            }
+        });
     }
 
     private openKycShippingPaymentModal(quoteId: number,originCountry:string,shippingmodeId:number,sumassured:number,pinNo: string,idNo: string,status:string,phone:string,prem:number,refno:string): void {

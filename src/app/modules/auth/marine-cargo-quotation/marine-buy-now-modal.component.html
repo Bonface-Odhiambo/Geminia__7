@@ -14,9 +14,9 @@
 
   <div *ngIf="!isLoading" class="modal-content bg-gray-50 py-2 px-3">
     <div class="max-w-full mx-auto">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:h-[calc(100vh-180px)]">
         <!-- Main Form Section - Order 1 on mobile, Order 1 on desktop -->
-        <div class="lg:col-span-2 overflow-y-auto order-1">
+        <div class="lg:col-span-7 overflow-y-auto order-1 lg:max-h-full">
           <div class="bg-white rounded-lg shadow-sm p-3">
             
             <div class="recalculation-notice">
@@ -289,22 +289,22 @@
       </div>
 
       <!-- Payment Summary Section - Order 2 on mobile, Order 2 on desktop -->
-      <div class="lg:col-span-1 order-2">
-        <div class="bg-white rounded-lg shadow-sm p-3 lg:h-full flex flex-col">
-          <h2 class="text-lg font-semibold text-gray-900 mb-3 text-center">Payment</h2>
+      <div class="lg:col-span-5 order-2">
+        <div class="bg-white rounded-lg shadow-sm p-2 lg:h-full flex flex-col">
+          <h2 class="text-base font-semibold text-gray-900 mb-2 text-center">Payment</h2>
           
           <!-- Cargo Protection Info -->
-          <div class="mb-3 pb-3 border-b">
+          <div class="mb-2 pb-2 border-b">
             <div class="flex items-center justify-between mb-1">
               <span class="text-xs font-medium text-gray-700">Cargo Protection</span>
-              <mat-icon class="text-blue-600" style="font-size: 18px; width: 18px; height: 18px;">verified_user</mat-icon>
+              <mat-icon class="text-blue-600" style="font-size: 16px; width: 16px; height: 16px;">verified_user</mat-icon>
             </div>
             <div class="bg-blue-50 border border-blue-200 rounded-lg px-2 py-1">
               <span class="text-blue-900 font-bold text-xs">ICC (A) All Risk</span>
             </div>
           </div>
           
-          <div class="space-y-2 mb-3 pb-3 border-b">
+          <div class="space-y-1 mb-2 pb-2 border-b">
             <div class="flex justify-between text-sm">
               <span class="text-gray-600">Sum Insured</span>
               <span class="font-medium">KES {{ shipmentForm.get('sumInsured')?.value | number:'1.2-2' }}</span>
@@ -326,13 +326,13 @@
               <span class="font-medium">KES {{ (premium * 0.0005) | number:'1.2-2' }}</span>
             </div>
           </div>
-          <div class="flex justify-between text-base font-semibold mb-4">
+          <div class="flex justify-between text-base font-semibold mb-2">
             <span>Total Amount</span>
             <span class="text-blue-600">KES {{ total | number:'1.2-2' }}</span>
           </div>
           
           <!-- M-Pesa Logo -->
-          <div class="mb-4 flex justify-center">
+          <div class="mb-2 flex justify-center">
             <div class="bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm">
               <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvbyhbvv75IhuEeL501ZQh_tuu3CwZ6EZWGw&s" 
                    alt="M-Pesa" 
@@ -349,7 +349,7 @@
             </mat-form-field>
           </div>
           
-          <button mat-raised-button color="primary" class="w-full" (click)="onSubmit()" [disabled]="isSubmitting">
+          <button mat-raised-button color="primary" class="w-full mt-2" (click)="onSubmit()" [disabled]="isSubmitting">
             <mat-spinner *ngIf="isSubmitting" diameter="24" class="mr-2"></mat-spinner>
             {{ isSubmitting ? 'Processing...' : 'Pay Now' }}
           </button>
