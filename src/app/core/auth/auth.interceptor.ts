@@ -31,8 +31,16 @@ export const authInterceptor = (
         '/i18n/'
     ];
 
+    // URLs that should not trigger logout on 401 errors (optional endpoints with backend issues)
+    const noLogoutOn401Urls = [
+        '/api/v1/ports'
+    ];
+
     // Check if the request is for a public API endpoint or a local asset
     const isPublicUrl = publicApiUrls.some(url => req.url.includes(url));
+    
+    // Check if this URL should not trigger logout on 401
+    const shouldNotLogoutOn401 = noLogoutOn401Urls.some(url => req.url.includes(url));
 
     // --- Logic for PUBLIC API calls (Login, OTP) and local assets ---
     if (isPublicUrl) {
@@ -62,7 +70,12 @@ export const authInterceptor = (
         catchError((error) => {
             console.log('Interceptor caught an error on a secure route:', error);
             if (error instanceof HttpErrorResponse && error.status === 401) {
-                authService.signOut();
+                // Only sign out if this is not an endpoint that should be ignored
+                if (!shouldNotLogoutOn401) {
+                    authService.signOut();
+                } else {
+                    console.log('401 error on optional endpoint, not logging out:', req.url);
+                }
             }
             return throwError(() => error);
         })

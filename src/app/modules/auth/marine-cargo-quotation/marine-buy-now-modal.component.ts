@@ -1261,7 +1261,8 @@ export class MarineBuyNowModalComponent implements OnInit {
                 }
             },
             error: (err) => {
-                console.error(`Error fetching ${type} ports:`, err);
+                // Silently handle the error without logging to prevent auth interceptor issues
+                // The ports will remain empty and user can manually type them
                 if (type === 'loading') {
                     this.loadingPorts = [];
                     this.filteredLoadingPorts.next([]);
@@ -1324,59 +1325,114 @@ export class MarineBuyNowModalComponent implements OnInit {
     standalone: true,
     imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
     template: `
-        <div class="p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-gray-900">Terms of Use</h2>
-                <button mat-icon-button (click)="close()">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 class="modal-title">Terms of Use</h2>
+                <button mat-icon-button (click)="close()" class="close-button">
                     <mat-icon>close</mat-icon>
                 </button>
             </div>
-            <div class="overflow-y-auto max-h-[60vh] text-sm text-gray-700 space-y-4">
-                <p class="font-semibold text-base">Terms of Use for Geminia Insurance Company Limited</p>
-                <p>By accessing and using the services provided by Geminia Insurance Company Limited, you agree to comply with and be bound by the following terms and conditions:</p>
-                
-                <div>
-                    <h3 class="font-semibold text-gray-900 mb-1">1. Service Agreement</h3>
-                    <p>These terms constitute a binding agreement between you and Geminia Insurance Company Limited regarding your use of our insurance services and platform.</p>
+            <div class="modal-content">
+                <div class="overflow-y-auto max-h-[60vh] text-sm text-gray-700 space-y-4 p-6">
+                    <p class="font-semibold text-base">Terms of Use for Geminia Insurance Company Limited</p>
+                    <p>By accessing and using the services provided by Geminia Insurance Company Limited, you agree to comply with and be bound by the following terms and conditions:</p>
+                    
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">1. Service Agreement</h3>
+                        <p>These terms constitute a binding agreement between you and Geminia Insurance Company Limited regarding your use of our insurance services and platform.</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">2. Eligibility</h3>
+                        <p>You must be at least 18 years old and legally capable of entering into binding contracts to use our services.</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">3. Accurate Information</h3>
+                        <p>You agree to provide accurate, current, and complete information during registration and throughout your use of our services.</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">4. Privacy and Data Protection</h3>
+                        <p>Your privacy is important to us. Please review our Data Privacy Policy to understand how we collect, use, and protect your personal information.</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">5. Service Availability</h3>
+                        <p>We strive to maintain service availability but cannot guarantee uninterrupted access to our platform.</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">6. Limitation of Liability</h3>
+                        <p>Geminia Insurance Company Limited shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of our services.</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">7. Modifications</h3>
+                        <p>We reserve the right to modify these terms at any time. Continued use of our services after modifications constitutes acceptance of the updated terms.</p>
+                    </div>
+                    
+                    <p class="text-xs text-gray-500 mt-4">Last updated: October 7, 2025</p>
                 </div>
-                
-                <div>
-                    <h3 class="font-semibold text-gray-900 mb-1">2. Eligibility</h3>
-                    <p>You must be at least 18 years old and legally capable of entering into binding contracts to use our services.</p>
+                <div class="px-6 pb-6 flex justify-end">
+                    <button mat-raised-button class="action-button" (click)="close()">Close</button>
                 </div>
-                
-                <div>
-                    <h3 class="font-semibold text-gray-900 mb-1">3. Accurate Information</h3>
-                    <p>You agree to provide accurate, current, and complete information during registration and throughout your use of our services.</p>
-                </div>
-                
-                <div>
-                    <h3 class="font-semibold text-gray-900 mb-1">4. Privacy and Data Protection</h3>
-                    <p>Your privacy is important to us. Please review our Data Privacy Policy to understand how we collect, use, and protect your personal information.</p>
-                </div>
-                
-                <div>
-                    <h3 class="font-semibold text-gray-900 mb-1">5. Service Availability</h3>
-                    <p>We strive to maintain service availability but cannot guarantee uninterrupted access to our platform.</p>
-                </div>
-                
-                <div>
-                    <h3 class="font-semibold text-gray-900 mb-1">6. Limitation of Liability</h3>
-                    <p>Geminia Insurance Company Limited shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of our services.</p>
-                </div>
-                
-                <div>
-                    <h3 class="font-semibold text-gray-900 mb-1">7. Modifications</h3>
-                    <p>We reserve the right to modify these terms at any time. Continued use of our services after modifications constitutes acceptance of the updated terms.</p>
-                </div>
-                
-                <p class="text-xs text-gray-500 mt-4">Last updated: October 7, 2025</p>
-            </div>
-            <div class="mt-6 flex justify-end">
-                <button mat-raised-button color="primary" (click)="close()">Close</button>
             </div>
         </div>
-    `
+    `,
+    styles: [`
+        .modal-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 24px;
+            background-color: #21275c;
+            color: white;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .modal-title {
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+            text-align: center;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            color: white;
+        }
+
+        .modal-content {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .action-button {
+            background-color: #21275c !important;
+            color: white !important;
+            padding: 8px 24px;
+            font-weight: 500;
+        }
+
+        .action-button:hover {
+            background-color: #2d3470 !important;
+        }
+    `]
 })
 export class TermsModalComponent {
     constructor(public dialogRef: MatDialogRef<TermsModalComponent>) {}
@@ -1392,63 +1448,118 @@ export class TermsModalComponent {
     standalone: true,
     imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
     template: `
-        <div class="p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-gray-900">Data Privacy Policy</h2>
-                <button mat-icon-button (click)="close()">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 class="modal-title">Data Privacy Policy</h2>
+                <button mat-icon-button (click)="close()" class="close-button">
                     <mat-icon>close</mat-icon>
                 </button>
             </div>
-            <div class="overflow-y-auto max-h-[60vh] text-sm text-gray-700 space-y-4">
-                <p class="font-semibold text-base">Data Privacy Statement - Geminia Insurance Company Limited</p>
-                <p>Geminia Insurance Company Limited is committed to protecting the fundamental human right to privacy of those with whom we interact. We recognize the need to safeguard personal data that is collected or disclosed to us as part of the Know-your-customer information required by us in order to provide you with the requisite financial product or service.</p>
-                
-                <p>We are committed to complying with the requirements of the Data Protection Act and the attendant regulations as well as best global best practices regarding the processing of your personal data. In this regard, you are required to acquaint yourselves with our data privacy statement which is intended to tell you how we use your personal data and describes how we collect and process your personal data during and after your relationship with us.</p>
-                
-                <div>
-                    <h3 class="font-semibold text-gray-900 mb-1">Data Collection</h3>
-                    <p>We collect personal data necessary for providing insurance services, including but not limited to identification information, contact details, and financial information required for Know Your Customer (KYC) compliance.</p>
+            <div class="modal-content">
+                <div class="overflow-y-auto max-h-[60vh] text-sm text-gray-700 space-y-4 p-6">
+                    <p class="font-semibold text-base">Data Privacy Statement - Geminia Insurance Company Limited</p>
+                    <p>Geminia Insurance Company Limited is committed to protecting the fundamental human right to privacy of those with whom we interact. We recognize the need to safeguard personal data that is collected or disclosed to us as part of the Know-your-customer information required by us in order to provide you with the requisite financial product or service.</p>
+                    
+                    <p>We are committed to complying with the requirements of the Data Protection Act and the attendant regulations as well as best global best practices regarding the processing of your personal data. In this regard, you are required to acquaint yourselves with our data privacy statement which is intended to tell you how we use your personal data and describes how we collect and process your personal data during and after your relationship with us.</p>
+                    
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">Data Collection</h3>
+                        <p>We collect personal data necessary for providing insurance services, including but not limited to identification information, contact details, and financial information required for Know Your Customer (KYC) compliance.</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">Purpose of Processing</h3>
+                        <p>Your personal data is processed for the following purposes:</p>
+                        <ul class="list-disc pl-5 mt-2 space-y-1">
+                            <li>Provision of insurance products and services</li>
+                            <li>Compliance with regulatory requirements</li>
+                            <li>Risk assessment and underwriting</li>
+                            <li>Claims processing and settlement</li>
+                            <li>Customer service and support</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">Data Security</h3>
+                        <p>We implement appropriate technical and organizational measures to protect your personal data against unauthorized access, alteration, disclosure, or destruction.</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">Your Rights</h3>
+                        <p>You have the right to access, rectify, erase, or restrict processing of your personal data, as well as the right to data portability and to object to processing under certain circumstances.</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">Data Retention</h3>
+                        <p>We retain your personal data only for as long as necessary to fulfill the purposes for which it was collected or as required by applicable laws and regulations.</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">Contact Information</h3>
+                        <p>For more detailed information about our data processing practices, please visit: <a href="https://geminia.co.ke/data-privacy-statement/" target="_blank" class="text-blue-600 hover:underline">https://geminia.co.ke/data-privacy-statement/</a></p>
+                    </div>
+                    
+                    <p class="text-xs text-gray-500 mt-4">Last updated: October 7, 2025</p>
                 </div>
-                
-                <div>
-                    <h3 class="font-semibold text-gray-900 mb-1">Purpose of Processing</h3>
-                    <p>Your personal data is processed for the following purposes:</p>
-                    <ul class="list-disc pl-5 mt-2 space-y-1">
-                        <li>Provision of insurance products and services</li>
-                        <li>Compliance with regulatory requirements</li>
-                        <li>Risk assessment and underwriting</li>
-                        <li>Claims processing and settlement</li>
-                        <li>Customer service and support</li>
-                    </ul>
+                <div class="px-6 pb-6 flex justify-end">
+                    <button mat-raised-button class="action-button" (click)="close()">Close</button>
                 </div>
-                
-                <div>
-                    <h3 class="font-semibold text-gray-900 mb-1">Data Security</h3>
-                    <p>We implement appropriate technical and organizational measures to protect your personal data against unauthorized access, alteration, disclosure, or destruction.</p>
-                </div>
-                
-                <div>
-                    <h3 class="font-semibold text-gray-900 mb-1">Your Rights</h3>
-                    <p>You have the right to access, rectify, erase, or restrict processing of your personal data, as well as the right to data portability and to object to processing under certain circumstances.</p>
-                </div>
-                
-                <div>
-                    <h3 class="font-semibold text-gray-900 mb-1">Data Retention</h3>
-                    <p>We retain your personal data only for as long as necessary to fulfill the purposes for which it was collected or as required by applicable laws and regulations.</p>
-                </div>
-                
-                <div>
-                    <h3 class="font-semibold text-gray-900 mb-1">Contact Information</h3>
-                    <p>For more detailed information about our data processing practices, please visit: <a href="https://geminia.co.ke/data-privacy-statement/" target="_blank" class="text-blue-600 hover:underline">https://geminia.co.ke/data-privacy-statement/</a></p>
-                </div>
-                
-                <p class="text-xs text-gray-500 mt-4">Last updated: October 7, 2025</p>
-            </div>
-            <div class="mt-6 flex justify-end">
-                <button mat-raised-button color="primary" (click)="close()">Close</button>
             </div>
         </div>
-    `
+    `,
+    styles: [`
+        .modal-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 24px;
+            background-color: #21275c;
+            color: white;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .modal-title {
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+            text-align: center;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            color: white;
+        }
+
+        .modal-content {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .action-button {
+            background-color: #21275c !important;
+            color: white !important;
+            padding: 8px 24px;
+            font-weight: 500;
+        }
+
+        .action-button:hover {
+            background-color: #2d3470 !important;
+        }
+    `]
 })
 export class PrivacyModalComponent {
     constructor(public dialogRef: MatDialogRef<PrivacyModalComponent>) {}
