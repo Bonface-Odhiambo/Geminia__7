@@ -624,6 +624,128 @@ export interface MarineBuyNowData {
         ::ng-deep .error-snackbar .mat-mdc-button {
             color: white !important;
         }
+
+        /* Cargo Protection Badge Styles */
+        .cargo-protection-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #04b2e1 0%, #21275c 100%);
+            border-radius: 12px;
+            padding: 14px 20px;
+            box-shadow: 0 6px 20px rgba(4, 178, 225, 0.25), 0 2px 8px rgba(33, 39, 92, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .cargo-protection-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .cargo-protection-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(4, 178, 225, 0.3), 0 4px 12px rgba(33, 39, 92, 0.2);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .cargo-protection-badge:hover::before {
+            left: 100%;
+        }
+
+        .cargo-protection-badge:active {
+            transform: translateY(0);
+            transition-duration: 0.1s;
+        }
+
+        .protection-icon {
+            margin-right: 12px;
+            z-index: 1;
+        }
+
+        .shield-icon {
+            color: white;
+            font-size: 24px;
+            width: 24px;
+            height: 24px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .protection-text {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            z-index: 1;
+        }
+
+        .protection-label {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .protection-value {
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Pay Now Button Hover Effect */
+        .pay-now-button {
+            background-color: #04b2e1 !important;
+            color: white !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 12px rgba(4, 178, 225, 0.3) !important;
+            position: relative !important;
+            overflow: hidden !important;
+        }
+
+        .pay-now-button:hover:not([disabled]) {
+            background-color: #21275c !important;
+            box-shadow: 0 6px 20px rgba(33, 39, 92, 0.4) !important;
+            transform: translateY(-2px) !important;
+        }
+
+        .pay-now-button:active:not([disabled]) {
+            transform: translateY(0) !important;
+            box-shadow: 0 2px 8px rgba(33, 39, 92, 0.3) !important;
+        }
+
+        .pay-now-button[disabled] {
+            opacity: 0.6 !important;
+            cursor: not-allowed !important;
+        }
+
+        /* Enhanced button animation */
+        .pay-now-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .pay-now-button:hover:not([disabled])::before {
+            left: 100%;
+        }
     `]
 
 })

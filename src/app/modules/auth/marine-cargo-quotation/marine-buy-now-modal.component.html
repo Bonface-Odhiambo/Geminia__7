@@ -158,14 +158,9 @@
                 </mat-form-field>
             </div>
             
-            <!-- Cargo Protection | Destination (Readonly) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
-                <mat-form-field appearance="outline">
-                    <mat-label>Cargo Protection</mat-label>
-                    <input matInput [value]="getCargoProtectionName()" readonly>
-                    <mat-icon matSuffix class="text-blue-600">verified_user</mat-icon>
-                </mat-form-field>
-                <mat-form-field appearance="outline">
+            <!-- Destination (Full Width) -->
+            <div class="mb-2">
+                <mat-form-field appearance="outline" class="w-full">
                     <mat-label>Destination</mat-label>
                     <input matInput formControlName="destination" readonly>
                 </mat-form-field>
@@ -327,6 +322,17 @@
         <div class="bg-white rounded-lg shadow-sm p-2 lg:h-full flex flex-col">
           <h2 class="text-base font-semibold text-gray-900 mb-2 text-center">Payment</h2>
           
+          <!-- Cargo Protection Badge -->
+          <div class="cargo-protection-badge mb-3">
+            <div class="protection-icon">
+              <mat-icon class="shield-icon">verified_user</mat-icon>
+            </div>
+            <div class="protection-text">
+              <span class="protection-label">Cargo Protection</span>
+              <span class="protection-value">{{ getCargoProtectionName() }}</span>
+            </div>
+          </div>
+          
           <div class="space-y-1 mb-2 pb-2 border-b">
             <div class="flex justify-between text-sm">
               <span class="text-gray-600">Sum Insured</span>
@@ -372,7 +378,7 @@
             </mat-form-field>
           </div>
           
-          <button mat-raised-button color="primary" class="w-full mt-2" (click)="onSubmit()" [disabled]="isSubmitting">
+          <button mat-raised-button color="primary" class="w-full mt-2 pay-now-button" (click)="onSubmit()" [disabled]="isSubmitting">
             <mat-spinner *ngIf="isSubmitting" diameter="24" class="mr-2"></mat-spinner>
             {{ isSubmitting ? 'Processing...' : 'Pay Now' }}
           </button>
