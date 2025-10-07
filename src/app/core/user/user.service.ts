@@ -149,4 +149,14 @@ export class UserService {
         );
     }
 
+    /**
+     * Recalculates the premium for a marine quote when user edits sum insured.
+     * @param quoteId The ID of the quote.
+     * @param sumInsured The new sum insured value.
+     * @returns Observable with the new premium details (premium, tax, total).
+     */
+    recalculateMarinePremium(quoteId: string, sumInsured: number): Observable<any> {
+        return this._httpClient.post(`${this.baseUrl}/quote/${quoteId}/recalculate`, { sumInsured });
+    }
+
 }

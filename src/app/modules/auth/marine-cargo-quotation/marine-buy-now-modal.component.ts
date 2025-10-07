@@ -119,15 +119,15 @@ export interface MarineBuyNowData {
           min-height: 100%;
         }
 
-        /* Form section should scroll independently - now takes 7/12 of width */
-        .lg\\:col-span-7.overflow-y-auto {
-          max-height: calc(92vh - 100px);
+        /* Form section should scroll independently */
+        .lg\\:col-span-2.overflow-y-auto {
+          max-height: calc(93vh - 100px);
           overflow-y: auto;
         }
 
         /* Payment section should have proper height on desktop */
         @media (min-width: 1024px) {
-          /* Payment section - no scrollbar, show all content - now takes 5/12 of width */
+          /* Payment section - no scrollbar, show all content */
           .lg\\:col-span-5 .bg-white.rounded-lg.shadow-sm {
             height: auto !important;
             max-height: none !important;
@@ -649,16 +649,38 @@ export class MarineBuyNowModalComponent implements OnInit {
     countries: any[] = [];
     loadingPorts: any[] = [];
     dischargePorts: any[] = [];
+    categories: any[] = [];
+    counties: any[] = [];
+    cargoTypes: any[] = [];
 
     // Search controls for dropdowns
     countrySearchCtrl: FormControl = new FormControl();
     loadingPortSearchCtrl: FormControl = new FormControl();
     dischargePortSearchCtrl: FormControl = new FormControl();
+    categorySearchCtrl: FormControl = new FormControl();
+    countySearchCtrl: FormControl = new FormControl();
+    cargoTypeSearchCtrl: FormControl = new FormControl();
 
     // Observable streams for filtered data
     filteredCountries: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
     filteredLoadingPorts: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
     filteredDischargePorts: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
+    filteredCategories: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
+    filteredCounties: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
+    filteredCargoTypes: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
+
+    // Pagination properties (server-side only)
+    countryPage = 0;
+    loadingPortPage = 0;
+    dischargePortPage = 0;
+    pageSize = 50;
+    
+    // Loading states
+    isLoadingCountries = false;
+    isLoadingLoadingPorts = false;
+    isLoadingDischargePorts = false;
+    isLoadingCategories = false;
+    isLoadingCargoTypes = false;
 
     private _onDestroy = new Subject<void>();
 
@@ -691,15 +713,15 @@ export class MarineBuyNowModalComponent implements OnInit {
             postalCode: ['', Validators.required],
 
             // Shipment Details
-            modeOfShipment: ['Sea', Validators.required],
-            tradeType: ['', Validators.required],
-            product: ['', Validators.required],
-            commodityType: ['Containerized', Validators.required],
-            salesCategory: ['', Validators.required],
-            destination: ['Kenya', Validators.required],
+            modeOfShipment: ['1', Validators.required], // 1 = Sea, 2 = Air
+            tradeType: ['1', Validators.required], // 1 = Import, 2 = Export
+            product: ['Marine Cargo Import'], // Readonly field
+            commodityType: ['1', Validators.required], // 1 = Containerized, 2 = Non-Containerized
+            selectCategory: ['', Validators.required], // Category ID
+            salesCategory: ['', Validators.required], // Cargo Type ID
+            destination: ['Kenya'], // Readonly field
             countryOfOrigin: ['', Validators.required],
             gcrNumber: [''],
-            idNumber2: ['', Validators.required],
             loadingPort: ['', Validators.required],
             portOfDischarge: ['', Validators.required],
             vesselName: [''],
@@ -708,7 +730,7 @@ export class MarineBuyNowModalComponent implements OnInit {
             estimatedArrival: ['', Validators.required],
             sumInsured: ['', [Validators.required, Validators.min(1)]],
             goodsDescription: ['', Validators.required],
-            mpesaNumber: ['', [Validators.required, Validators.pattern(/^254[0-9]{9}$/)]],
+            mpesaNumber: ['', [Validators.required, Validators.pattern(/^(07|01)[0-9]{8}$/)]],
 
             // Payment
             paymentMethod: ['mpesa', Validators.required]
@@ -789,11 +811,36 @@ export class MarineBuyNowModalComponent implements OnInit {
 
     fetchQuoteDetails(): void {
         // For DRAFT quotes, we don't have shipping application data yet
-        // Just initialize with empty form and let user fill it in
-        this.isLoading = false;
-        
-        // Optionally, you could fetch basic quote data here if needed
-        // using quoteService.getQuoteById() instead of getShipmentDetails()
+        // Try to fetch quote details to pre-populate form if available
+        if (this.data.quoteId) {
+            this.quoteService.getQuoteById(this.data.quoteId).subscribe({
+                next: (quoteData) => {
+                    // Pre-populate form with quote data if available
+                    if (quoteData) {
+                        this.shipmentForm.patchValue({
+                            sumInsured: quoteData.sumInsured || quoteData.sumassured,
+                            modeOfShipment: quoteData.modeOfShipment || 'Sea',
+                            countryOfOrigin: quoteData.countryOfOrigin,
+                            // Add other fields as needed
+                        });
+                        
+                        // Set initial premium values if available
+                        if (quoteData.premium) {
+                            this.premium = quoteData.premium;
+                            this.total = quoteData.total || quoteData.netprem;
+                        }
+                    }
+                    this.isLoading = false;
+                },
+                error: (err) => {
+                    console.error('Error fetching quote details:', err);
+                    // Don't block the form if quote fetch fails
+                    this.isLoading = false;
+                }
+            });
+        } else {
+            this.isLoading = false;
+        }
     }
 
     listenForPremiumChanges(): void {
@@ -807,7 +854,8 @@ export class MarineBuyNowModalComponent implements OnInit {
                     return EMPTY;
                 }
                 this.isSubmitting = true;
-                return this.quoteService.recalculateMarinePremium(this.data.quoteId, sumInsured);
+                // Use userService for premium recalculation
+                return this.userService.recalculateMarinePremium(this.data.quoteId, sumInsured);
             })
         ).subscribe({
             next: (premiumDetails) => {
@@ -837,40 +885,121 @@ export class MarineBuyNowModalComponent implements OnInit {
     }
 
     private setupSearchableDropdowns(): void {
+        // Load initial data
+        this.fetchCategories();
+        this.fetchCounties();
+        this.fetchCountries();
+
         // Listen for mode of shipment changes to load countries
         this.shipmentForm.get('modeOfShipment')?.valueChanges
             .pipe(takeUntil(this._onDestroy))
             .subscribe((mode) => {
                 if (mode) {
+                    this.countryPage = 0;
                     this.fetchCountries();
                 }
             });
 
-        // Load initial countries based on default mode (Sea = 1)
-        this.fetchCountries();
+        // Listen for search changes with debounce
+        this.categorySearchCtrl.valueChanges
+            .pipe(takeUntil(this._onDestroy), debounceTime(300))
+            .subscribe(() => {
+                this.fetchCategories(this.categorySearchCtrl.value);
+            });
 
-        // Listen for search changes
         this.countrySearchCtrl.valueChanges
             .pipe(takeUntil(this._onDestroy), debounceTime(300))
-            .subscribe(() => this.fetchCountries(this.countrySearchCtrl.value));
+            .subscribe(() => {
+                this.countryPage = 0;
+                this.fetchCountries(this.countrySearchCtrl.value);
+            });
 
         this.loadingPortSearchCtrl.valueChanges
             .pipe(takeUntil(this._onDestroy), debounceTime(300))
-            .subscribe(() => this.fetchPorts('loading', this.loadingPortSearchCtrl.value));
+            .subscribe(() => {
+                this.loadingPortPage = 0;
+                this.fetchPorts('loading', this.loadingPortSearchCtrl.value);
+            });
 
         this.dischargePortSearchCtrl.valueChanges
             .pipe(takeUntil(this._onDestroy), debounceTime(300))
-            .subscribe(() => this.fetchPorts('discharge', this.dischargePortSearchCtrl.value));
+            .subscribe(() => {
+                this.dischargePortPage = 0;
+                this.fetchPorts('discharge', this.dischargePortSearchCtrl.value);
+            });
+
+        this.countySearchCtrl.valueChanges
+            .pipe(takeUntil(this._onDestroy), debounceTime(300))
+            .subscribe(() => {
+                this.fetchCounties(this.countySearchCtrl.value);
+            });
+
+        this.cargoTypeSearchCtrl.valueChanges
+            .pipe(takeUntil(this._onDestroy), debounceTime(300))
+            .subscribe(() => {
+                this.filterCargoTypes(this.cargoTypeSearchCtrl.value);
+            });
         
+        // Listen for category selection changes to fetch cargo types
+        this.shipmentForm.get('selectCategory')?.valueChanges
+            .pipe(takeUntil(this._onDestroy))
+            .subscribe((categoryId) => {
+                if (categoryId) {
+                    this.fetchCargoTypes(categoryId);
+                    // Clear cargo type selection when category changes
+                    this.shipmentForm.get('salesCategory')?.setValue('');
+                }
+            });
+
         // Listen for country selection changes to fetch ports
         this.shipmentForm.get('countryOfOrigin')?.valueChanges
             .pipe(takeUntil(this._onDestroy))
             .subscribe((countryId) => {
                 if (countryId) {
+                    this.loadingPortPage = 0;
+                    this.dischargePortPage = 0;
                     this.fetchPorts('loading');
                     this.fetchPorts('discharge');
                 }
             });
+    }
+
+    private fetchCategories(searchTerm: string = ''): void {
+        // Only fetch once, then filter client-side
+        if (this.categories.length === 0 && !this.isLoadingCategories) {
+            this.isLoadingCategories = true;
+            this.userService.getMarineCategories().subscribe({
+                next: (response: any) => {
+                    this.categories = response || [];
+                    this.filterCategories(searchTerm);
+                    this.isLoadingCategories = false;
+                },
+                error: (err) => {
+                    console.error('Error fetching categories:', err);
+                    this.categories = [];
+                    this.filteredCategories.next([]);
+                    this.isLoadingCategories = false;
+                }
+            });
+        } else {
+            // Client-side filtering
+            this.filterCategories(searchTerm);
+        }
+    }
+
+    private filterCategories(searchTerm: string = ''): void {
+        if (!this.categories) {
+            return;
+        }
+        if (!searchTerm) {
+            this.filteredCategories.next(this.categories.slice());
+            return;
+        }
+        const search = searchTerm.toLowerCase();
+        const filtered = this.categories.filter(category => 
+            category.catname?.toLowerCase().includes(search)
+        );
+        this.filteredCategories.next(filtered);
     }
 
     private fetchCountries(searchTerm: string = ''): void {
@@ -878,17 +1007,72 @@ export class MarineBuyNowModalComponent implements OnInit {
         const modeValue = this.shipmentForm.get('modeOfShipment')?.value;
         const modeId = modeValue === 'Sea' ? 1 : modeValue === 'Air' ? 2 : 1; // Default to Sea (1)
         
-        this.userService.getCountries(0, 50, modeId, searchTerm).subscribe({
+        this.isLoadingCountries = true;
+        this.userService.getCountries(this.countryPage, this.pageSize, modeId, searchTerm).subscribe({
             next: (response) => {
-                this.countries = response.pageItems || [];
+                const newCountries = response.pageItems || [];
+                
+                // Append to existing if pagination, otherwise replace
+                if (this.countryPage === 0) {
+                    this.countries = newCountries;
+                } else {
+                    this.countries = [...this.countries, ...newCountries];
+                }
+                
                 this.filteredCountries.next(this.countries.slice());
+                this.isLoadingCountries = false;
             },
             error: (err) => {
                 console.error('Error fetching countries:', err);
                 this.countries = [];
                 this.filteredCountries.next([]);
+                this.isLoadingCountries = false;
             }
         });
+    }
+
+    private fetchCounties(searchTerm: string = ''): void {
+        // Client-side filtering only - no API call
+        let filteredCounties = this.kenyanCounties;
+        if (searchTerm) {
+            const search = searchTerm.toLowerCase();
+            filteredCounties = this.kenyanCounties.filter(county => 
+                county.toLowerCase().includes(search)
+            );
+        }
+        this.filteredCounties.next(filteredCounties);
+    }
+
+    private fetchCargoTypes(categoryId: number): void {
+        this.isLoadingCargoTypes = true;
+        this.userService.getCargoTypesByCategory(categoryId).subscribe({
+            next: (response: any) => {
+                this.cargoTypes = response || [];
+                this.filteredCargoTypes.next(this.cargoTypes.slice());
+                this.isLoadingCargoTypes = false;
+            },
+            error: (err) => {
+                console.error('Error fetching cargo types:', err);
+                this.cargoTypes = [];
+                this.filteredCargoTypes.next([]);
+                this.isLoadingCargoTypes = false;
+            }
+        });
+    }
+
+    private filterCargoTypes(searchTerm: string = ''): void {
+        if (!this.cargoTypes) {
+            return;
+        }
+        if (!searchTerm) {
+            this.filteredCargoTypes.next(this.cargoTypes.slice());
+            return;
+        }
+        const search = searchTerm.toLowerCase();
+        const filtered = this.cargoTypes.filter(cargoType => 
+            cargoType.ctname?.toLowerCase().includes(search)
+        );
+        this.filteredCargoTypes.next(filtered);
     }
 
     get termsAgreed(): boolean {
@@ -965,14 +1149,36 @@ export class MarineBuyNowModalComponent implements OnInit {
             return;
         }
 
-        this.userService.getPorts(countryId, 'all', 0, 50, searchTerm).subscribe({
+        const page = type === 'loading' ? this.loadingPortPage : this.dischargePortPage;
+        
+        if (type === 'loading') {
+            this.isLoadingLoadingPorts = true;
+        } else {
+            this.isLoadingDischargePorts = true;
+        }
+
+        this.userService.getPorts(countryId, 'all', page, this.pageSize, searchTerm).subscribe({
             next: (response) => {
+                const newPorts = response.pageItems || [];
+                
                 if (type === 'loading') {
-                    this.loadingPorts = response.pageItems || [];
+                    // Append to existing if pagination, otherwise replace
+                    if (this.loadingPortPage === 0) {
+                        this.loadingPorts = newPorts;
+                    } else {
+                        this.loadingPorts = [...this.loadingPorts, ...newPorts];
+                    }
                     this.filteredLoadingPorts.next(this.loadingPorts.slice());
+                    this.isLoadingLoadingPorts = false;
                 } else {
-                    this.dischargePorts = response.pageItems || [];
+                    // Append to existing if pagination, otherwise replace
+                    if (this.dischargePortPage === 0) {
+                        this.dischargePorts = newPorts;
+                    } else {
+                        this.dischargePorts = [...this.dischargePorts, ...newPorts];
+                    }
                     this.filteredDischargePorts.next(this.dischargePorts.slice());
+                    this.isLoadingDischargePorts = false;
                 }
             },
             error: (err) => {
@@ -980,12 +1186,36 @@ export class MarineBuyNowModalComponent implements OnInit {
                 if (type === 'loading') {
                     this.loadingPorts = [];
                     this.filteredLoadingPorts.next([]);
+                    this.isLoadingLoadingPorts = false;
                 } else {
                     this.dischargePorts = [];
                     this.filteredDischargePorts.next([]);
+                    this.isLoadingDischargePorts = false;
                 }
             }
         });
+    }
+
+    // Scroll event handlers for infinite scroll (server-side only)
+    onCountryScroll(): void {
+        if (!this.isLoadingCountries) {
+            this.countryPage++;
+            this.fetchCountries(this.countrySearchCtrl.value);
+        }
+    }
+
+    onLoadingPortScroll(): void {
+        if (!this.isLoadingLoadingPorts) {
+            this.loadingPortPage++;
+            this.fetchPorts('loading', this.loadingPortSearchCtrl.value);
+        }
+    }
+
+    onDischargePortScroll(): void {
+        if (!this.isLoadingDischargePorts) {
+            this.dischargePortPage++;
+            this.fetchPorts('discharge', this.dischargePortSearchCtrl.value);
+        }
     }
 
     openTermsOfUse(event: Event): void {

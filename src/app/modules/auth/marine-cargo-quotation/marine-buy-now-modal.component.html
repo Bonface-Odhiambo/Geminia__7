@@ -153,16 +153,28 @@
                 <mat-form-field appearance="outline">
                     <mat-label>Mode of Shipment</mat-label>
                     <mat-select formControlName="modeOfShipment">
-                      <mat-option value="Sea">Sea</mat-option>
-                      <mat-option value="Air">Air</mat-option>
+                      <mat-option value="1">Sea</mat-option>
+                      <mat-option value="2">Air</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                     <mat-label>Trade Type</mat-label>
                     <mat-select formControlName="tradeType">
-                      <mat-option value="import">Import</mat-option>
-                      <mat-option value="export">Export</mat-option>
+                      <mat-option value="1">Import</mat-option>
+                      <mat-option value="2">Export</mat-option>
                     </mat-select>
+                </mat-form-field>
+            </div>
+            
+            <!-- Product | Destination (Readonly) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+                <mat-form-field appearance="outline">
+                    <mat-label>Product</mat-label>
+                    <input matInput formControlName="product" readonly>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                    <mat-label>Destination</mat-label>
+                    <input matInput formControlName="destination" readonly>
                 </mat-form-field>
             </div>
             
@@ -188,10 +200,10 @@
             
             <!-- Packaging Type -->
             <div class="mb-3">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Packaging Type</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Marine Packaging Type</label>
                 <mat-radio-group formControlName="commodityType" color="primary">
-                  <mat-radio-button value="Containerized" class="mr-4">Containerized</mat-radio-button>
-                  <mat-radio-button value="Non Containerized">Non Containerized</mat-radio-button>
+                  <mat-radio-button value="1" class="mr-4">Containerized</mat-radio-button>
+                  <mat-radio-button value="2">Non-Containerized</mat-radio-button>
                 </mat-radio-group>
             </div>
             
@@ -200,15 +212,32 @@
                 <mat-form-field appearance="outline">
                     <mat-label>Select Category</mat-label>
                     <mat-select formControlName="selectCategory">
-                      <mat-option value="category1">Category 1</mat-option>
-                      <mat-option value="category2">Category 2</mat-option>
+                        <mat-option>
+                            <ngx-mat-select-search [formControl]="categorySearchCtrl" placeholderLabel="Search categories..."></ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngFor="let category of filteredCategories | async" [value]="category.id">
+                            {{ category.catname }}
+                        </mat-option>
+                        <mat-option *ngIf="isLoadingCategories" disabled>
+                            <mat-spinner diameter="20"></mat-spinner> Loading...
+                        </mat-option>
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                     <mat-label>Cargo Type</mat-label>
                     <mat-select formControlName="salesCategory">
-                      <mat-option value="wholesale">Wholesale</mat-option>
-                      <mat-option value="retail">Retail</mat-option>
+                        <mat-option>
+                            <ngx-mat-select-search [formControl]="cargoTypeSearchCtrl" placeholderLabel="Search cargo types..."></ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngFor="let cargoType of filteredCargoTypes | async" [value]="cargoType.id">
+                            {{ cargoType.ctname }}
+                        </mat-option>
+                        <mat-option *ngIf="isLoadingCargoTypes" disabled>
+                            <mat-spinner diameter="20"></mat-spinner> Loading...
+                        </mat-option>
+                        <mat-option *ngIf="!isLoadingCargoTypes && (filteredCargoTypes | async)?.length === 0" disabled>
+                            Please select a category first
+                        </mat-option>
                     </mat-select>
                 </mat-form-field>
             </div>
@@ -222,7 +251,7 @@
                     <mat-datepicker #dispatchPicker></mat-datepicker>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
-                    <mat-label>Estimated Arrival Time</mat-label>
+                    <mat-label>Date of Arrival</mat-label>
                     <input matInput [matDatepicker]="arrivalPicker" formControlName="estimatedArrival">
                     <mat-datepicker-toggle matSuffix [for]="arrivalPicker"></mat-datepicker-toggle>
                     <mat-datepicker #arrivalPicker></mat-datepicker>
@@ -235,10 +264,13 @@
                     <mat-label>Country of Origin</mat-label>
                     <mat-select formControlName="countryOfOrigin">
                         <mat-option>
-                            <ngx-mat-select-search [formControl]="countrySearchCtrl" placeholderLabel="Search..."></ngx-mat-select-search>
+                            <ngx-mat-select-search [formControl]="countrySearchCtrl" placeholderLabel="Search countries..."></ngx-mat-select-search>
                         </mat-option>
                         <mat-option *ngFor="let country of filteredCountries | async" [value]="country.id">
                             {{ country.name }}
+                        </mat-option>
+                        <mat-option *ngIf="isLoadingCountries" disabled>
+                            <mat-spinner diameter="20"></mat-spinner> Loading...
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -246,10 +278,13 @@
                     <mat-label>Loading Port</mat-label>
                     <mat-select formControlName="loadingPort">
                         <mat-option>
-                            <ngx-mat-select-search [formControl]="loadingPortSearchCtrl" placeholderLabel="Search..."></ngx-mat-select-search>
+                            <ngx-mat-select-search [formControl]="loadingPortSearchCtrl" placeholderLabel="Search ports..."></ngx-mat-select-search>
                         </mat-option>
                         <mat-option *ngFor="let port of filteredLoadingPorts | async" [value]="port.id">
                             {{ port.name }}
+                        </mat-option>
+                        <mat-option *ngIf="isLoadingLoadingPorts" disabled>
+                            <mat-spinner diameter="20"></mat-spinner> Loading...
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -261,17 +296,23 @@
                     <mat-label>Port of Discharge</mat-label>
                     <mat-select formControlName="portOfDischarge">
                         <mat-option>
-                            <ngx-mat-select-search [formControl]="dischargePortSearchCtrl" placeholderLabel="Search..."></ngx-mat-select-search>
+                            <ngx-mat-select-search [formControl]="dischargePortSearchCtrl" placeholderLabel="Search ports..."></ngx-mat-select-search>
                         </mat-option>
                         <mat-option *ngFor="let port of filteredDischargePorts | async" [value]="port.id">
                             {{ port.name }}
+                        </mat-option>
+                        <mat-option *ngIf="isLoadingDischargePorts" disabled>
+                            <mat-spinner diameter="20"></mat-spinner> Loading...
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                     <mat-label>Final Destination</mat-label>
                     <mat-select formControlName="finalDestination">
-                        <mat-option *ngFor="let county of kenyanCounties" [value]="county">
+                        <mat-option>
+                            <ngx-mat-select-search [formControl]="countySearchCtrl" placeholderLabel="Search counties..."></ngx-mat-select-search>
+                        </mat-option>
+                        <mat-option *ngFor="let county of filteredCounties | async" [value]="county">
                             {{ county }}
                         </mat-option>
                     </mat-select>
@@ -307,7 +348,7 @@
           <div class="space-y-1 mb-2 pb-2 border-b">
             <div class="flex justify-between text-sm">
               <span class="text-gray-600">Sum Insured</span>
-              <span class="font-medium">KES {{ shipmentForm.get('sumInsured')?.value | number:'1.2-2' }}</span>
+              <span class="font-medium">KES {{ (shipmentForm.get('sumInsured')?.value || 0) | number:'1.2-2' }}</span>
             </div>
             <div class="flex justify-between text-sm">
               <span class="text-gray-600">Base Premium</span>
@@ -344,8 +385,8 @@
           <div class="mb-4">
             <mat-form-field appearance="outline" class="w-full">
               <mat-label>M-Pesa Number</mat-label>
-              <input matInput formControlName="mpesaNumber" placeholder="254XXXXXXXXX">
-              <mat-hint>Enter your M-Pesa number, Get STK Push</mat-hint>
+              <input matInput formControlName="mpesaNumber" placeholder="07XXXXXXXX" maxlength="10">
+              <mat-hint>Enter your M-Pesa number (10 digits starting with 07 or 01)</mat-hint>
             </mat-form-field>
           </div>
           

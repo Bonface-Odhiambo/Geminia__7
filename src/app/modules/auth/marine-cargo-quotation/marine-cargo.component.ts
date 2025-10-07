@@ -2449,8 +2449,8 @@ export class MarineCargoQuotationComponent implements OnInit, OnDestroy, AfterVi
         const dialogRef = this.dialog.open(MarineBuyNowModalComponent, {
             width: isMobile ? '100vw' : '900px',
             maxWidth: isMobile ? '100vw' : '90vw',
-            height: isMobile ? '100vh' : '92vh',
-            maxHeight: isMobile ? '100vh' : '95vh',
+            height: isMobile ? '100vh' : '93vh',
+            maxHeight: isMobile ? '100vh' : '96vh',
             panelClass: ['payment-modal', ...(isMobile ? ['mobile-modal'] : [])],
             data: { quoteId: String(quoteId) } as MarineBuyNowData,
             disableClose: true,
