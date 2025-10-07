@@ -18,11 +18,6 @@
         <!-- Main Form Section - Order 1 on mobile, Order 1 on desktop -->
         <div class="lg:col-span-7 overflow-y-auto order-1 lg:max-h-full">
           <div class="bg-white rounded-lg shadow-sm p-3">
-            
-            <div class="recalculation-notice">
-                <mat-icon>info_outline</mat-icon>
-                <span>Editing the Sum Insured will automatically recalculate your premium.</span>
-            </div>
 
           <!-- Document Uploads -->
           <div class="mb-3">
@@ -159,18 +154,16 @@
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                     <mat-label>Trade Type</mat-label>
-                    <mat-select formControlName="tradeType">
-                      <mat-option value="1">Import</mat-option>
-                      <mat-option value="2">Export</mat-option>
-                    </mat-select>
+                    <input matInput formControlName="tradeType" value="Marine Cargo Import" readonly>
                 </mat-form-field>
             </div>
             
-            <!-- Product | Destination (Readonly) -->
+            <!-- Cargo Protection | Destination (Readonly) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                 <mat-form-field appearance="outline">
-                    <mat-label>Product</mat-label>
-                    <input matInput formControlName="product" readonly>
+                    <mat-label>Cargo Protection</mat-label>
+                    <input matInput [value]="getCargoProtectionName()" readonly>
+                    <mat-icon matSuffix class="text-blue-600">verified_user</mat-icon>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                     <mat-label>Destination</mat-label>
@@ -194,7 +187,7 @@
             <div class="mb-3">
                 <mat-form-field appearance="outline" class="w-full">
                     <mat-label>Sum Insured (KES)</mat-label>
-                    <input matInput type="number" formControlName="sumInsured" placeholder="3,500,000">
+                    <input matInput type="text" formControlName="sumInsured" appThousands placeholder="3,500,000" inputmode="numeric">
                 </mat-form-field>
             </div>
             
@@ -333,17 +326,6 @@
       <div class="lg:col-span-5 order-2">
         <div class="bg-white rounded-lg shadow-sm p-2 lg:h-full flex flex-col">
           <h2 class="text-base font-semibold text-gray-900 mb-2 text-center">Payment</h2>
-          
-          <!-- Cargo Protection Info -->
-          <div class="mb-2 pb-2 border-b">
-            <div class="flex items-center justify-between mb-1">
-              <span class="text-xs font-medium text-gray-700">Cargo Protection</span>
-              <mat-icon class="text-blue-600" style="font-size: 16px; width: 16px; height: 16px;">verified_user</mat-icon>
-            </div>
-            <div class="bg-blue-50 border border-blue-200 rounded-lg px-2 py-1">
-              <span class="text-blue-900 font-bold text-xs">ICC (A) All Risk</span>
-            </div>
-          </div>
           
           <div class="space-y-1 mb-2 pb-2 border-b">
             <div class="flex justify-between text-sm">

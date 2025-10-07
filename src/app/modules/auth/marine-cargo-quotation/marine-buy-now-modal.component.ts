@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -19,6 +19,7 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { ReplaySubject, Subject, EMPTY } from 'rxjs';
 import { take, takeUntil, debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
+import { ThousandsSeparatorValueAccessor } from '../directives/thousands-separator-value-accessor';
 
 export interface MarineBuyNowData {
     quoteId: string;
@@ -42,7 +43,8 @@ export interface MarineBuyNowData {
         MatCheckboxModule,
         MatDatepickerModule,
         MatNativeDateModule,
-        NgxMatSelectSearchModule
+        NgxMatSelectSearchModule,
+        ThousandsSeparatorValueAccessor
     ],
     templateUrl: './marine-buy-now-modal.component.html',
     styles: [`
@@ -652,6 +654,7 @@ export class MarineBuyNowModalComponent implements OnInit {
     categories: any[] = [];
     counties: any[] = [];
     cargoTypes: any[] = [];
+    marineProducts: any[] = [];
 
     // Search controls for dropdowns
     countrySearchCtrl: FormControl = new FormControl();
@@ -690,7 +693,8 @@ export class MarineBuyNowModalComponent implements OnInit {
         @Inject(MAT_DIALOG_DATA) public data: MarineBuyNowData,
         private quoteService: QuoteService,
         private userService: UserService,
-        private snackBar: MatSnackBar
+        private snackBar: MatSnackBar,
+        private dialog: MatDialog
     ) {}
 
     ngOnInit(): void {
@@ -714,8 +718,9 @@ export class MarineBuyNowModalComponent implements OnInit {
 
             // Shipment Details
             modeOfShipment: ['1', Validators.required], // 1 = Sea, 2 = Air
-            tradeType: ['1', Validators.required], // 1 = Import, 2 = Export
+            tradeType: ['Marine Cargo Import'], // Readonly field - always Marine Cargo Import
             product: ['Marine Cargo Import'], // Readonly field
+            cargoProtection: ['', Validators.required], // Marine Product ID (ICC A, B, or C)
             commodityType: ['1', Validators.required], // 1 = Containerized, 2 = Non-Containerized
             selectCategory: ['', Validators.required], // Category ID
             salesCategory: ['', Validators.required], // Cargo Type ID
@@ -749,8 +754,32 @@ export class MarineBuyNowModalComponent implements OnInit {
         });
 
         this.fetchQuoteDetails();
-        this.listenForPremiumChanges();
+        // Enable client-side premium calculation when sum insured changes
+        this.listenForSumInsuredChanges();
         this.setupSearchableDropdowns();
+    }
+
+    private premiumRate = 0; // Store the rate from initial quote
+
+    listenForSumInsuredChanges(): void {
+        this.shipmentForm.get('sumInsured')?.valueChanges.pipe(
+            debounceTime(300),
+            distinctUntilChanged(),
+            takeUntil(this._onDestroy)
+        ).subscribe((sumInsured) => {
+            if (sumInsured && sumInsured > 0 && this.premiumRate > 0) {
+                // Calculate premium based on rate
+                this.premium = sumInsured * this.premiumRate;
+                
+                // Calculate taxes and levies
+                const phcf = this.premium * 0.0025; // 0.25%
+                const trainingLevy = this.premium * 0.002; // 0.2%
+                const stampDuty = this.premium * 0.0005; // 0.05%
+                
+                this.tax = phcf + trainingLevy + stampDuty;
+                this.total = this.premium + this.tax;
+            }
+        });
     }
 
     onFileSelected(event: Event, controlName: string): void {
@@ -810,25 +839,31 @@ export class MarineBuyNowModalComponent implements OnInit {
     }
 
     fetchQuoteDetails(): void {
-        // For DRAFT quotes, we don't have shipping application data yet
-        // Try to fetch quote details to pre-populate form if available
+        // For DRAFT quotes, fetch quote details to get premium and pre-populate form
         if (this.data.quoteId) {
-            this.quoteService.getQuoteById(this.data.quoteId).subscribe({
+            this.userService.getSingleQuote(this.data.quoteId).subscribe({
                 next: (quoteData) => {
                     // Pre-populate form with quote data if available
                     if (quoteData) {
-                        this.shipmentForm.patchValue({
-                            sumInsured: quoteData.sumInsured || quoteData.sumassured,
-                            modeOfShipment: quoteData.modeOfShipment || 'Sea',
-                            countryOfOrigin: quoteData.countryOfOrigin,
-                            // Add other fields as needed
-                        });
+                        const sumInsured = quoteData.sumassured || quoteData.sumInsured || 0;
+                        const basePremium = quoteData.premium || 0;
                         
-                        // Set initial premium values if available
-                        if (quoteData.premium) {
-                            this.premium = quoteData.premium;
-                            this.total = quoteData.total || quoteData.netprem;
+                        // Calculate and store the premium rate for future calculations
+                        if (sumInsured > 0 && basePremium > 0) {
+                            this.premiumRate = basePremium / sumInsured;
                         }
+                        
+                        this.shipmentForm.patchValue({
+                            sumInsured: sumInsured,
+                            modeOfShipment: quoteData.shippingmodeId?.toString() || '1',
+                            countryOfOrigin: quoteData.originCountry,
+                            // Add other fields as needed
+                        }, { emitEvent: false }); // Don't trigger valueChanges yet
+                        
+                        // Set premium values from quote
+                        this.premium = basePremium;
+                        this.tax = (quoteData.phcf || 0) + (quoteData.tl || 0) + (quoteData.sd || 0);
+                        this.total = quoteData.netprem || quoteData.total || 0;
                     }
                     this.isLoading = false;
                 },
@@ -875,6 +910,15 @@ export class MarineBuyNowModalComponent implements OnInit {
         });
     }
 
+    getCargoProtectionName(): string {
+        const selectedId = this.shipmentForm.get('cargoProtection')?.value;
+        if (selectedId && this.marineProducts.length > 0) {
+            const product = this.marineProducts.find(p => p.id === selectedId);
+            return product?.prodname || 'ICC (A) All Risk';
+        }
+        return 'ICC (A) All Risk';
+    }
+
     closeDialog(): void {
         this.dialogRef.close();
     }
@@ -886,6 +930,7 @@ export class MarineBuyNowModalComponent implements OnInit {
 
     private setupSearchableDropdowns(): void {
         // Load initial data
+        this.fetchMarineProducts();
         this.fetchCategories();
         this.fetchCounties();
         this.fetchCountries();
@@ -953,15 +998,40 @@ export class MarineBuyNowModalComponent implements OnInit {
 
         // Listen for country selection changes to fetch ports
         this.shipmentForm.get('countryOfOrigin')?.valueChanges
-            .pipe(takeUntil(this._onDestroy))
+            .pipe(
+                takeUntil(this._onDestroy),
+                distinctUntilChanged()
+            )
             .subscribe((countryId) => {
-                if (countryId) {
+                if (countryId && this.termsAgreed) {
                     this.loadingPortPage = 0;
                     this.dischargePortPage = 0;
                     this.fetchPorts('loading');
                     this.fetchPorts('discharge');
                 }
             });
+    }
+
+    private fetchMarineProducts(): void {
+        this.userService.getMarineProducts().subscribe({
+            next: (response: any) => {
+                this.marineProducts = response || [];
+                // Find ICC(A) All Risk and set as default
+                const iccA = this.marineProducts.find(p => 
+                    p.prodname?.toLowerCase().includes('icc') && 
+                    p.prodname?.toLowerCase().includes('a')
+                );
+                if (iccA) {
+                    this.shipmentForm.patchValue({
+                        cargoProtection: iccA.id
+                    }, { emitEvent: false });
+                }
+            },
+            error: (err) => {
+                console.error('Error fetching marine products:', err);
+                this.marineProducts = [];
+            }
+        });
     }
 
     private fetchCategories(searchTerm: string = ''): void {
@@ -1139,6 +1209,15 @@ export class MarineBuyNowModalComponent implements OnInit {
         this.shipmentForm.get('estimatedArrival')?.enable();
         this.shipmentForm.get('sumInsured')?.enable();
         this.shipmentForm.get('goodsDescription')?.enable();
+
+        // Fetch ports if country is already selected
+        const countryId = this.shipmentForm.get('countryOfOrigin')?.value;
+        if (countryId) {
+            this.loadingPortPage = 0;
+            this.dischargePortPage = 0;
+            this.fetchPorts('loading');
+            this.fetchPorts('discharge');
+        }
     }
 
     private fetchPorts(type: 'loading' | 'discharge', searchTerm: string = ''): void {
@@ -1220,11 +1299,161 @@ export class MarineBuyNowModalComponent implements OnInit {
 
     openTermsOfUse(event: Event): void {
         event.preventDefault();
-        window.open('https://geminiainsurance.com/terms-of-use', '_blank');
+        const dialogRef = this.dialog.open(TermsModalComponent, {
+            width: '600px',
+            maxWidth: '90vw',
+            maxHeight: '80vh',
+            panelClass: 'terms-modal'
+        });
     }
 
     openPrivacyPolicy(event: Event): void {
         event.preventDefault();
-        window.open('https://geminiainsurance.com/privacy-policy', '_blank');
+        const dialogRef = this.dialog.open(PrivacyModalComponent, {
+            width: '600px',
+            maxWidth: '90vw',
+            maxHeight: '80vh',
+            panelClass: 'privacy-modal'
+        });
+    }
+}
+
+// Terms of Use Modal Component
+@Component({
+    selector: 'app-terms-modal',
+    standalone: true,
+    imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
+    template: `
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-900">Terms of Use</h2>
+                <button mat-icon-button (click)="close()">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+            <div class="overflow-y-auto max-h-[60vh] text-sm text-gray-700 space-y-4">
+                <p class="font-semibold text-base">Terms of Use for Geminia Insurance Company Limited</p>
+                <p>By accessing and using the services provided by Geminia Insurance Company Limited, you agree to comply with and be bound by the following terms and conditions:</p>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-1">1. Service Agreement</h3>
+                    <p>These terms constitute a binding agreement between you and Geminia Insurance Company Limited regarding your use of our insurance services and platform.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-1">2. Eligibility</h3>
+                    <p>You must be at least 18 years old and legally capable of entering into binding contracts to use our services.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-1">3. Accurate Information</h3>
+                    <p>You agree to provide accurate, current, and complete information during registration and throughout your use of our services.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-1">4. Privacy and Data Protection</h3>
+                    <p>Your privacy is important to us. Please review our Data Privacy Policy to understand how we collect, use, and protect your personal information.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-1">5. Service Availability</h3>
+                    <p>We strive to maintain service availability but cannot guarantee uninterrupted access to our platform.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-1">6. Limitation of Liability</h3>
+                    <p>Geminia Insurance Company Limited shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of our services.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-1">7. Modifications</h3>
+                    <p>We reserve the right to modify these terms at any time. Continued use of our services after modifications constitutes acceptance of the updated terms.</p>
+                </div>
+                
+                <p class="text-xs text-gray-500 mt-4">Last updated: October 7, 2025</p>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button mat-raised-button color="primary" (click)="close()">Close</button>
+            </div>
+        </div>
+    `
+})
+export class TermsModalComponent {
+    constructor(public dialogRef: MatDialogRef<TermsModalComponent>) {}
+    
+    close(): void {
+        this.dialogRef.close();
+    }
+}
+
+// Privacy Policy Modal Component
+@Component({
+    selector: 'app-privacy-modal',
+    standalone: true,
+    imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
+    template: `
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-900">Data Privacy Policy</h2>
+                <button mat-icon-button (click)="close()">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+            <div class="overflow-y-auto max-h-[60vh] text-sm text-gray-700 space-y-4">
+                <p class="font-semibold text-base">Data Privacy Statement - Geminia Insurance Company Limited</p>
+                <p>Geminia Insurance Company Limited is committed to protecting the fundamental human right to privacy of those with whom we interact. We recognize the need to safeguard personal data that is collected or disclosed to us as part of the Know-your-customer information required by us in order to provide you with the requisite financial product or service.</p>
+                
+                <p>We are committed to complying with the requirements of the Data Protection Act and the attendant regulations as well as best global best practices regarding the processing of your personal data. In this regard, you are required to acquaint yourselves with our data privacy statement which is intended to tell you how we use your personal data and describes how we collect and process your personal data during and after your relationship with us.</p>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-1">Data Collection</h3>
+                    <p>We collect personal data necessary for providing insurance services, including but not limited to identification information, contact details, and financial information required for Know Your Customer (KYC) compliance.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-1">Purpose of Processing</h3>
+                    <p>Your personal data is processed for the following purposes:</p>
+                    <ul class="list-disc pl-5 mt-2 space-y-1">
+                        <li>Provision of insurance products and services</li>
+                        <li>Compliance with regulatory requirements</li>
+                        <li>Risk assessment and underwriting</li>
+                        <li>Claims processing and settlement</li>
+                        <li>Customer service and support</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-1">Data Security</h3>
+                    <p>We implement appropriate technical and organizational measures to protect your personal data against unauthorized access, alteration, disclosure, or destruction.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-1">Your Rights</h3>
+                    <p>You have the right to access, rectify, erase, or restrict processing of your personal data, as well as the right to data portability and to object to processing under certain circumstances.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-1">Data Retention</h3>
+                    <p>We retain your personal data only for as long as necessary to fulfill the purposes for which it was collected or as required by applicable laws and regulations.</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-1">Contact Information</h3>
+                    <p>For more detailed information about our data processing practices, please visit: <a href="https://geminia.co.ke/data-privacy-statement/" target="_blank" class="text-blue-600 hover:underline">https://geminia.co.ke/data-privacy-statement/</a></p>
+                </div>
+                
+                <p class="text-xs text-gray-500 mt-4">Last updated: October 7, 2025</p>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button mat-raised-button color="primary" (click)="close()">Close</button>
+            </div>
+        </div>
+    `
+})
+export class PrivacyModalComponent {
+    constructor(public dialogRef: MatDialogRef<PrivacyModalComponent>) {}
+    
+    close(): void {
+        this.dialogRef.close();
     }
 }
