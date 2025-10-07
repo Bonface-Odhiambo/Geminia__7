@@ -841,11 +841,13 @@ export class MarineBuyNowModalComponent implements OnInit {
 
     // County Data
     kenyanCounties: string[] = [
-        'Mombasa', 'Kwale', 'Kilifi', 'Tana River', 'Lamu', 'Taita-Taveta', 'Garissa', 'Wajir', 'Mandera', 'Marsabit',
-        'Isiolo', 'Meru', 'Tharaka-Nithi', 'Embu', 'Kitui', 'Machakos', 'Makueni', 'Nyandarua', 'Nyeri', 'Kirinyaga',
-        'Murang\u0027a', 'Kiambu', 'Turkana', 'West Pokot', 'Samburu', 'Trans Nzoia', 'Uasin Gishu', 'Elgeyo-Marakwet',
-        'Nandi', 'Baringo', 'Laikipia', 'Nakuru', 'Narok', 'Kajiado', 'Kericho', 'Bomet', 'Kakamega', 'Vihiga',
-        'Bungoma', 'Busia', 'Siaya', 'Kisumu', 'Homa Bay', 'Migori', 'Kisii', 'Nyamira', 'Nairobi'
+        'Baringo', 'Bomet', 'Bungoma', 'Busia', 'Elgeyo-Marakwet', 'Embu', 'Garissa', 'Homa Bay', 
+        'Isiolo', 'Kajiado', 'Kakamega', 'Kericho', 'Kiambu', 'Kilifi', 'Kirinyaga', 'Kisii', 
+        'Kisumu', 'Kitui', 'Kwale', 'Laikipia', 'Lamu', 'Machakos', 'Makueni', 'Mandera', 
+        'Marsabit', 'Meru', 'Migori', 'Mombasa', 'Murang\'a', 'Nairobi', 'Nakuru', 'Nandi', 
+        'Narok', 'Nyamira', 'Nyandarua', 'Nyeri', 'Samburu', 'Siaya', 'Taita-Taveta', 
+        'Tana River', 'Tharaka-Nithi', 'Trans Nzoia', 'Turkana', 'Uasin Gishu', 'Vihiga', 
+        'Wajir', 'West Pokot'
     ];
 
     // Data sources for searchable dropdowns
@@ -925,7 +927,6 @@ export class MarineBuyNowModalComponent implements OnInit {
             commodityType: ['1', Validators.required], // 1 = Containerized, 2 = Non-Containerized
             selectCategory: ['', Validators.required], // Category ID
             salesCategory: ['', Validators.required], // Cargo Type ID
-            destination: ['Kenya'], // Readonly field
             countryOfOrigin: ['', Validators.required],
             gcrNumber: [''],
             loadingPort: ['', Validators.required],
@@ -958,6 +959,11 @@ export class MarineBuyNowModalComponent implements OnInit {
         // Enable client-side premium calculation when sum insured changes
         this.listenForSumInsuredChanges();
         this.setupSearchableDropdowns();
+        
+        // Validate data integrity after initialization
+        setTimeout(() => {
+            this.validateAndRefreshIfNeeded();
+        }, 2000); // Allow time for API calls to complete
     }
 
     private premiumRate = 0; // Store the rate from initial quote
@@ -1130,11 +1136,11 @@ export class MarineBuyNowModalComponent implements OnInit {
     }
 
     private setupSearchableDropdowns(): void {
-        // Load initial data
-        this.fetchMarineProducts();
-        this.fetchCategories();
+        // Initialize all data sources from backend
+        this.initializeAllData();
+        
+        // Setup client-side filtering for counties (no API needed)
         this.fetchCounties();
-        this.fetchCountries();
 
         // Listen for mode of shipment changes to load countries
         this.shipmentForm.get('modeOfShipment')?.valueChanges
@@ -1216,21 +1222,29 @@ export class MarineBuyNowModalComponent implements OnInit {
     private fetchMarineProducts(): void {
         this.userService.getMarineProducts().subscribe({
             next: (response: any) => {
-                this.marineProducts = response || [];
+                this.marineProducts = Array.isArray(response) ? response : (response?.data || []);
+                console.log('Marine products loaded:', this.marineProducts.length);
+                
                 // Find ICC(A) All Risk and set as default
                 const iccA = this.marineProducts.find(p => 
                     p.prodname?.toLowerCase().includes('icc') && 
                     p.prodname?.toLowerCase().includes('a')
                 );
+                
                 if (iccA) {
                     this.shipmentForm.patchValue({
                         cargoProtection: iccA.id
                     }, { emitEvent: false });
+                    console.log('Default cargo protection set:', iccA.prodname);
+                } else {
+                    console.warn('ICC(A) All Risk product not found in marine products');
                 }
             },
             error: (err) => {
                 console.error('Error fetching marine products:', err);
                 this.marineProducts = [];
+                // Show user-friendly error message
+                this.showErrorMessage('Failed to load cargo protection options. Please refresh the page.');
             }
         });
     }
@@ -1241,7 +1255,8 @@ export class MarineBuyNowModalComponent implements OnInit {
             this.isLoadingCategories = true;
             this.userService.getMarineCategories().subscribe({
                 next: (response: any) => {
-                    this.categories = response || [];
+                    this.categories = Array.isArray(response) ? response : (response?.data || []);
+                    console.log('Categories loaded:', this.categories.length);
                     this.filterCategories(searchTerm);
                     this.isLoadingCategories = false;
                 },
@@ -1250,6 +1265,7 @@ export class MarineBuyNowModalComponent implements OnInit {
                     this.categories = [];
                     this.filteredCategories.next([]);
                     this.isLoadingCategories = false;
+                    this.showErrorMessage('Failed to load cargo categories. Please refresh the page.');
                 }
             });
         } else {
@@ -1281,7 +1297,8 @@ export class MarineBuyNowModalComponent implements OnInit {
         this.isLoadingCountries = true;
         this.userService.getCountries(this.countryPage, this.pageSize, modeId, searchTerm).subscribe({
             next: (response) => {
-                const newCountries = response.pageItems || [];
+                const newCountries = response?.pageItems || response?.data || [];
+                console.log('Countries loaded:', newCountries.length, 'for mode:', modeId);
                 
                 // Append to existing if pagination, otherwise replace
                 if (this.countryPage === 0) {
@@ -1298,6 +1315,7 @@ export class MarineBuyNowModalComponent implements OnInit {
                 this.countries = [];
                 this.filteredCountries.next([]);
                 this.isLoadingCountries = false;
+                this.showErrorMessage('Failed to load countries. Please check your connection and try again.');
             }
         });
     }
@@ -1315,18 +1333,26 @@ export class MarineBuyNowModalComponent implements OnInit {
     }
 
     private fetchCargoTypes(categoryId: number): void {
+        if (!categoryId) {
+            this.cargoTypes = [];
+            this.filteredCargoTypes.next([]);
+            return;
+        }
+
         this.isLoadingCargoTypes = true;
         this.userService.getCargoTypesByCategory(categoryId).subscribe({
             next: (response: any) => {
-                this.cargoTypes = response || [];
+                this.cargoTypes = Array.isArray(response) ? response : (response?.data || []);
+                console.log('Cargo types loaded for category', categoryId, ':', this.cargoTypes.length);
                 this.filteredCargoTypes.next(this.cargoTypes.slice());
                 this.isLoadingCargoTypes = false;
             },
             error: (err) => {
-                console.error('Error fetching cargo types:', err);
+                console.error('Error fetching cargo types for category', categoryId, ':', err);
                 this.cargoTypes = [];
                 this.filteredCargoTypes.next([]);
                 this.isLoadingCargoTypes = false;
+                this.showErrorMessage('Failed to load cargo types for the selected category.');
             }
         });
     }
@@ -1344,6 +1370,136 @@ export class MarineBuyNowModalComponent implements OnInit {
             cargoType.ctname?.toLowerCase().includes(search)
         );
         this.filteredCargoTypes.next(filtered);
+    }
+
+    private initializeAllData(): void {
+        // Initialize all required data from backend APIs
+        this.fetchMarineProducts();
+        this.fetchCategories();
+        this.fetchCountries();
+        
+        // Initialize filtered observables with empty arrays
+        this.filteredCategories.next([]);
+        this.filteredCargoTypes.next([]);
+        this.filteredCountries.next([]);
+        this.filteredLoadingPorts.next([]);
+        this.filteredDischargePorts.next([]);
+        this.filteredCounties.next(this.kenyanCounties.slice());
+    }
+
+    private showErrorMessage(message: string): void {
+        this.snackBar.open(message, 'Close', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
+        });
+    }
+
+    private showSuccessMessage(message: string): void {
+        this.snackBar.open(message, 'Close', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+        });
+    }
+
+    public refreshAllData(): void {
+        // Reset all data arrays
+        this.countries = [];
+        this.categories = [];
+        this.cargoTypes = [];
+        this.marineProducts = [];
+        this.loadingPorts = [];
+        this.dischargePorts = [];
+        
+        // Reset loading states
+        this.isLoadingCountries = false;
+        this.isLoadingCategories = false;
+        this.isLoadingCargoTypes = false;
+        this.isLoadingLoadingPorts = false;
+        this.isLoadingDischargePorts = false;
+        
+        // Reset pagination
+        this.countryPage = 0;
+        this.loadingPortPage = 0;
+        this.dischargePortPage = 0;
+        
+        // Reinitialize all data
+        this.initializeAllData();
+        
+        this.showSuccessMessage('Data refreshed successfully');
+    }
+
+    private validateDataIntegrity(): boolean {
+        const validationResults = {
+            counties: this.kenyanCounties.length === 47,
+            marineProducts: this.marineProducts.length > 0,
+            categories: this.categories.length > 0,
+            countries: this.countries.length > 0
+        };
+
+        console.log('Data validation results:', validationResults);
+
+        if (!validationResults.counties) {
+            console.warn('Counties validation failed: Expected 47 counties, got', this.kenyanCounties.length);
+        }
+
+        if (!validationResults.marineProducts) {
+            console.warn('Marine products validation failed: No products loaded');
+        }
+
+        if (!validationResults.categories) {
+            console.warn('Categories validation failed: No categories loaded');
+        }
+
+        if (!validationResults.countries) {
+            console.warn('Countries validation failed: No countries loaded');
+        }
+
+        return Object.values(validationResults).every(result => result);
+    }
+
+    public validateAndRefreshIfNeeded(): void {
+        if (!this.validateDataIntegrity()) {
+            console.log('Data integrity check failed, attempting retry...');
+            this.retryFailedApiCalls();
+        } else {
+            console.log('Data integrity check passed');
+        }
+    }
+
+    private retryFailedApiCalls(): void {
+        // Retry failed API calls with exponential backoff
+        const retryAttempts = 3;
+        const baseDelay = 1000; // 1 second
+
+        const retryWithBackoff = (apiCall: () => void, attempt: number = 1) => {
+            if (attempt > retryAttempts) {
+                console.error('Max retry attempts reached for API call');
+                return;
+            }
+
+            const delay = baseDelay * Math.pow(2, attempt - 1);
+            setTimeout(() => {
+                try {
+                    apiCall();
+                } catch (error) {
+                    console.warn(`API call failed on attempt ${attempt}, retrying...`);
+                    retryWithBackoff(apiCall, attempt + 1);
+                }
+            }, delay);
+        };
+
+        // Retry critical data if not loaded
+        if (this.marineProducts.length === 0) {
+            retryWithBackoff(() => this.fetchMarineProducts());
+        }
+
+        if (this.categories.length === 0) {
+            retryWithBackoff(() => this.fetchCategories());
+        }
+
+        if (this.countries.length === 0) {
+            retryWithBackoff(() => this.fetchCountries());
+        }
     }
 
     get termsAgreed(): boolean {
@@ -1367,7 +1523,6 @@ export class MarineBuyNowModalComponent implements OnInit {
         this.shipmentForm.get('product')?.disable();
         this.shipmentForm.get('commodityType')?.disable();
         this.shipmentForm.get('salesCategory')?.disable();
-        this.shipmentForm.get('destination')?.disable();
         this.shipmentForm.get('countryOfOrigin')?.disable();
         this.shipmentForm.get('gcrNumber')?.disable();
         this.shipmentForm.get('idNumber2')?.disable();
@@ -1398,7 +1553,6 @@ export class MarineBuyNowModalComponent implements OnInit {
         this.shipmentForm.get('product')?.enable();
         this.shipmentForm.get('commodityType')?.enable();
         this.shipmentForm.get('salesCategory')?.enable();
-        this.shipmentForm.get('destination')?.enable();
         this.shipmentForm.get('countryOfOrigin')?.enable();
         this.shipmentForm.get('gcrNumber')?.enable();
         this.shipmentForm.get('idNumber2')?.enable();
@@ -1439,7 +1593,8 @@ export class MarineBuyNowModalComponent implements OnInit {
 
         this.userService.getPorts(countryId, 'all', page, this.pageSize, searchTerm).subscribe({
             next: (response) => {
-                const newPorts = response.pageItems || [];
+                const newPorts = response?.pageItems || response?.data || [];
+                console.log(`${type} ports loaded for country ${countryId}:`, newPorts.length);
                 
                 if (type === 'loading') {
                     // Append to existing if pagination, otherwise replace
@@ -1462,8 +1617,8 @@ export class MarineBuyNowModalComponent implements OnInit {
                 }
             },
             error: (err) => {
-                // Silently handle the error without logging to prevent auth interceptor issues
-                // The ports will remain empty and user can manually type them
+                console.error(`Error fetching ${type} ports for country ${countryId}:`, err);
+                
                 if (type === 'loading') {
                     this.loadingPorts = [];
                     this.filteredLoadingPorts.next([]);
