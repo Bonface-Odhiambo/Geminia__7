@@ -647,8 +647,20 @@ export interface MarineBuyNowData {
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .cargo-protection-badge::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%, rgba(255, 255, 255, 0.05) 100%);
+            border-radius: 12px;
+            pointer-events: none;
         }
 
         .cargo-protection-badge:hover {
@@ -673,10 +685,26 @@ export interface MarineBuyNowData {
 
         .shield-icon {
             color: white;
-            font-size: 24px;
-            width: 24px;
-            height: 24px;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+            font-size: 28px;
+            width: 28px;
+            height: 28px;
+            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.2));
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .cargo-protection-badge:hover .shield-icon {
+            animation: none;
+            transform: scale(1.1);
+            transition: transform 0.3s ease;
         }
 
         .protection-text {
@@ -688,19 +716,23 @@ export interface MarineBuyNowData {
         }
 
         .protection-label {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 11px;
-            font-weight: 500;
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 12px;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 2px;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .protection-value {
             color: white;
-            font-size: 14px;
-            font-weight: 700;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            letter-spacing: 0.5px;
         }
 
         /* Pay Now Button Hover Effect */
@@ -745,6 +777,53 @@ export interface MarineBuyNowData {
 
         .pay-now-button:hover:not([disabled])::before {
             left: 100%;
+        }
+
+        /* Responsive Design for Cargo Protection Badge */
+        @media (max-width: 640px) {
+            .cargo-protection-badge {
+                padding: 12px 16px;
+                margin-bottom: 16px;
+            }
+
+            .shield-icon {
+                font-size: 24px;
+                width: 24px;
+                height: 24px;
+            }
+
+            .protection-icon {
+                margin-right: 10px;
+            }
+
+            .protection-label {
+                font-size: 11px;
+                letter-spacing: 0.8px;
+            }
+
+            .protection-value {
+                font-size: 14px;
+            }
+        }
+
+        @media (min-width: 641px) and (max-width: 1023px) {
+            .cargo-protection-badge {
+                padding: 13px 18px;
+            }
+
+            .shield-icon {
+                font-size: 26px;
+                width: 26px;
+                height: 26px;
+            }
+
+            .protection-label {
+                font-size: 11.5px;
+            }
+
+            .protection-value {
+                font-size: 15px;
+            }
         }
     `]
 
