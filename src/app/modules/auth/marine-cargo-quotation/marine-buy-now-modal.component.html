@@ -192,7 +192,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                 <mat-form-field appearance="outline">
                     <mat-label>Select Category</mat-label>
-                    <mat-select formControlName="selectCategory">
+                    <mat-select formControlName="selectCategory" (openedChange)="onDropdownOpen('categories')">
                         <mat-option>
                             <ngx-mat-select-search [formControl]="categorySearchCtrl" placeholderLabel="Search categories..."></ngx-mat-select-search>
                         </mat-option>
@@ -243,12 +243,12 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                 <mat-form-field appearance="outline">
                     <mat-label>Country of Origin</mat-label>
-                    <mat-select formControlName="countryOfOrigin">
+                    <mat-select formControlName="countryOfOrigin" (openedChange)="onDropdownOpen('countries')">
                         <mat-option>
                             <ngx-mat-select-search [formControl]="countrySearchCtrl" placeholderLabel="Search countries..."></ngx-mat-select-search>
                         </mat-option>
                         <mat-option *ngFor="let country of filteredCountries | async" [value]="country.id">
-                            {{ country.name }}
+                            {{ country.countryname }}
                         </mat-option>
                         <mat-option *ngIf="isLoadingCountries" disabled>
                             <mat-spinner diameter="20"></mat-spinner> Loading...
@@ -257,15 +257,19 @@
                 </mat-form-field>
                 <mat-form-field appearance="outline">
                     <mat-label>Loading Port</mat-label>
-                    <mat-select formControlName="loadingPort">
+                    <mat-select formControlName="loadingPort" (openedChange)="onDropdownOpen('loadingPorts')" 
+                               (scroll)="onLoadingPortScroll()">
                         <mat-option>
-                            <ngx-mat-select-search [formControl]="loadingPortSearchCtrl" placeholderLabel="Search ports..."></ngx-mat-select-search>
+                            <ngx-mat-select-search [formControl]="loadingPortSearchCtrl" placeholderLabel="Search loading ports..."></ngx-mat-select-search>
                         </mat-option>
-                        <mat-option *ngFor="let port of filteredLoadingPorts | async" [value]="port.id">
-                            {{ port.name }}
+                        <mat-option *ngFor="let port of filteredLoadingPorts | async" [value]="getPortId(port)">
+                            {{ getPortDisplayName(port) }}
                         </mat-option>
                         <mat-option *ngIf="isLoadingLoadingPorts" disabled>
-                            <mat-spinner diameter="20"></mat-spinner> Loading...
+                            <mat-spinner diameter="20"></mat-spinner> Loading ports...
+                        </mat-option>
+                        <mat-option *ngIf="(filteredLoadingPorts | async)?.length === 0 && !isLoadingLoadingPorts" disabled>
+                            <em>⚠️ Ports unavailable. Please contact support or try again later.</em>
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -275,15 +279,19 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                 <mat-form-field appearance="outline">
                     <mat-label>Port of Discharge</mat-label>
-                    <mat-select formControlName="portOfDischarge">
+                    <mat-select formControlName="portOfDischarge" (openedChange)="onDropdownOpen('dischargePorts')"
+                               (scroll)="onDischargePortScroll()">
                         <mat-option>
-                            <ngx-mat-select-search [formControl]="dischargePortSearchCtrl" placeholderLabel="Search ports..."></ngx-mat-select-search>
+                            <ngx-mat-select-search [formControl]="dischargePortSearchCtrl" placeholderLabel="Search discharge ports..."></ngx-mat-select-search>
                         </mat-option>
-                        <mat-option *ngFor="let port of filteredDischargePorts | async" [value]="port.id">
-                            {{ port.name }}
+                        <mat-option *ngFor="let port of filteredDischargePorts | async" [value]="getPortId(port)">
+                            {{ getPortDisplayName(port) }}
                         </mat-option>
                         <mat-option *ngIf="isLoadingDischargePorts" disabled>
-                            <mat-spinner diameter="20"></mat-spinner> Loading...
+                            <mat-spinner diameter="20"></mat-spinner> Loading ports...
+                        </mat-option>
+                        <mat-option *ngIf="(filteredDischargePorts | async)?.length === 0 && !isLoadingDischargePorts" disabled>
+                            <em>⚠️ Ports unavailable. Please contact support or try again later.</em>
                         </mat-option>
                     </mat-select>
                 </mat-form-field>

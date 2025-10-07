@@ -1,24 +1,25 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { Component, OnInit, OnDestroy, Inject, ChangeDetectorRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { QuoteService } from '../shared/services/quote.service';
-import { UserService } from 'app/core/user/user.service';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
-import { ReplaySubject, Subject, EMPTY } from 'rxjs';
+import { Subject, ReplaySubject, EMPTY } from 'rxjs';
 import { take, takeUntil, debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
-import { FormControl } from '@angular/forms';
+import { UserService } from 'app/core/user/user.service';
+import { QuoteService } from '../shared/services/quote.service';
 import { ThousandsSeparatorValueAccessor } from '../directives/thousands-separator-value-accessor';
 
 export interface MarineBuyNowData {
@@ -43,6 +44,7 @@ export interface MarineBuyNowData {
         MatCheckboxModule,
         MatDatepickerModule,
         MatNativeDateModule,
+        MatAutocompleteModule,
         NgxMatSelectSearchModule,
         ThousandsSeparatorValueAccessor
     ],
@@ -767,7 +769,7 @@ export interface MarineBuyNowData {
     `]
 
 })
-export class MarineBuyNowModalComponent implements OnInit {
+export class MarineBuyNowModalComponent implements OnInit, AfterViewInit {
     shipmentForm: FormGroup;
     isSubmitting = false;
     isLoading = true;
@@ -778,16 +780,16 @@ export class MarineBuyNowModalComponent implements OnInit {
     // Track duplicate file errors
     duplicateFileErrors: { [key: string]: string } = {};
 
-    // County Data
+    // Kenyan counties for Final Destination dropdown
     kenyanCounties: string[] = [
-        'Baringo', 'Bomet', 'Bungoma', 'Busia', 'Elgeyo-Marakwet', 'Embu', 'Garissa', 'Homa Bay', 
-        'Isiolo', 'Kajiado', 'Kakamega', 'Kericho', 'Kiambu', 'Kilifi', 'Kirinyaga', 'Kisii', 
-        'Kisumu', 'Kitui', 'Kwale', 'Laikipia', 'Lamu', 'Machakos', 'Makueni', 'Mandera', 
-        'Marsabit', 'Meru', 'Migori', 'Mombasa', 'Murang\'a', 'Nairobi', 'Nakuru', 'Nandi', 
-        'Narok', 'Nyamira', 'Nyandarua', 'Nyeri', 'Samburu', 'Siaya', 'Taita-Taveta', 
-        'Tana River', 'Tharaka-Nithi', 'Trans Nzoia', 'Turkana', 'Uasin Gishu', 'Vihiga', 
-        'Wajir', 'West Pokot'
+        'Baringo', 'Bomet', 'Bungoma', 'Busia', 'Elgeyo-Marakwet', 'Embu', 'Garissa', 'Homa Bay',
+        'Isiolo', 'Kajiado', 'Kakamega', 'Kericho', 'Kiambu', 'Kilifi', 'Kirinyaga', 'Kisii',
+        'Kisumu', 'Kitui', 'Kwale', 'Laikipia', 'Lamu', 'Machakos', 'Makueni', 'Mandera',
+        'Marsabit', 'Meru', 'Migori', 'Mombasa', 'Murang\'a', 'Nairobi', 'Nakuru', 'Nandi',
+        'Narok', 'Nyamira', 'Nyandarua', 'Nyeri', 'Samburu', 'Siaya', 'Taita-Taveta', 'Tana River',
+        'Tharaka-Nithi', 'Trans Nzoia', 'Turkana', 'Uasin Gishu', 'Vihiga', 'Wajir', 'West Pokot'
     ];
+
 
     // Data sources for searchable dropdowns
     countries: any[] = [];
@@ -811,8 +813,30 @@ export class MarineBuyNowModalComponent implements OnInit {
     filteredLoadingPorts: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
     filteredDischargePorts: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
     filteredCategories: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
-    filteredCounties: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
+    filteredCounties: ReplaySubject<string[]> = new ReplaySubject<string[]>(1);
     filteredCargoTypes: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
+
+    // Helper method to get port display name - handles both objects and strings
+    public getPortDisplayName(port: any): string {
+        if (typeof port === 'string') {
+            return port; // Manual entry
+        }
+        if (typeof port === 'object' && port) {
+            return port.portname || port.pname || port.name || port.portName || 'Unknown Port';
+        }
+        return '';
+    }
+
+    // Helper method to get port ID - handles both objects and strings
+    public getPortId(port: any): any {
+        if (typeof port === 'string') {
+            return port; // Manual entry
+        }
+        if (typeof port === 'object' && port) {
+            return port.id || port.portId || port.portid;
+        }
+        return port;
+    }
 
     // Pagination properties (server-side only)
     countryPage = 0;
@@ -836,6 +860,7 @@ export class MarineBuyNowModalComponent implements OnInit {
         private quoteService: QuoteService,
         private userService: UserService,
         private snackBar: MatSnackBar,
+        private cdr: ChangeDetectorRef,
         private dialog: MatDialog
     ) {}
 
@@ -903,6 +928,16 @@ export class MarineBuyNowModalComponent implements OnInit {
         setTimeout(() => {
             this.validateAndRefreshIfNeeded();
         }, 2000); // Allow time for API calls to complete
+        
+        // Trigger initial search to populate dropdowns
+        setTimeout(() => {
+            this.triggerInitialSearch();
+        }, 500);
+    }
+
+    ngAfterViewInit(): void {
+        // Use ChangeDetectorRef to avoid ExpressionChangedAfterItHasBeenCheckedError
+        this.cdr.detectChanges();
     }
 
     private premiumRate = 0; // Store the rate from initial quote
@@ -1100,23 +1135,27 @@ export class MarineBuyNowModalComponent implements OnInit {
 
         this.countrySearchCtrl.valueChanges
             .pipe(takeUntil(this._onDestroy), debounceTime(300))
-            .subscribe(() => {
+            .subscribe((searchTerm) => {
+                console.log('Country search term:', searchTerm);
                 this.countryPage = 0;
-                this.fetchCountries(this.countrySearchCtrl.value);
+                this.fetchCountries(searchTerm || '');
             });
 
+        // Listen to search control changes for ports
         this.loadingPortSearchCtrl.valueChanges
             .pipe(takeUntil(this._onDestroy), debounceTime(300))
-            .subscribe(() => {
+            .subscribe((searchTerm) => {
+                console.log('Loading port search term:', searchTerm);
                 this.loadingPortPage = 0;
-                this.fetchPorts('loading', this.loadingPortSearchCtrl.value);
+                this.fetchPorts('loading', searchTerm || '');
             });
 
         this.dischargePortSearchCtrl.valueChanges
             .pipe(takeUntil(this._onDestroy), debounceTime(300))
-            .subscribe(() => {
+            .subscribe((searchTerm) => {
+                console.log('Discharge port search term:', searchTerm);
                 this.dischargePortPage = 0;
-                this.fetchPorts('discharge', this.dischargePortSearchCtrl.value);
+                this.fetchPorts('discharge', searchTerm || '');
             });
 
         this.countySearchCtrl.valueChanges
@@ -1149,11 +1188,18 @@ export class MarineBuyNowModalComponent implements OnInit {
                 distinctUntilChanged()
             )
             .subscribe((countryId) => {
-                if (countryId && this.termsAgreed) {
+                if (countryId) {
+                    console.log('Country selected:', countryId);
                     this.loadingPortPage = 0;
                     this.dischargePortPage = 0;
                     this.fetchPorts('loading');
                     this.fetchPorts('discharge');
+                } else {
+                    // Clear ports when no country is selected
+                    this.loadingPorts = [];
+                    this.dischargePorts = [];
+                    this.filteredLoadingPorts.next([]);
+                    this.filteredDischargePorts.next([]);
                 }
             });
     }
@@ -1231,13 +1277,16 @@ export class MarineBuyNowModalComponent implements OnInit {
     private fetchCountries(searchTerm: string = ''): void {
         // Get the mode of shipment: 'Sea' = 1, 'Air' = 2
         const modeValue = this.shipmentForm.get('modeOfShipment')?.value;
-        const modeId = modeValue === 'Sea' ? 1 : modeValue === 'Air' ? 2 : 1; // Default to Sea (1)
+        const modeId = modeValue === '1' ? 1 : modeValue === '2' ? 2 : 1; // Default to Sea (1)
+        
+        console.log('Fetching countries with mode:', modeId, 'search term:', searchTerm);
         
         this.isLoadingCountries = true;
         this.userService.getCountries(this.countryPage, this.pageSize, modeId, searchTerm).subscribe({
             next: (response) => {
                 const newCountries = response?.pageItems || response?.data || [];
                 console.log('Countries loaded:', newCountries.length, 'for mode:', modeId);
+                console.log('Sample country data:', newCountries.length > 0 ? newCountries[0] : 'No countries');
                 
                 // Append to existing if pagination, otherwise replace
                 if (this.countryPage === 0) {
@@ -1246,6 +1295,7 @@ export class MarineBuyNowModalComponent implements OnInit {
                     this.countries = [...this.countries, ...newCountries];
                 }
                 
+                console.log('Total countries in array:', this.countries.length);
                 this.filteredCountries.next(this.countries.slice());
                 this.isLoadingCountries = false;
             },
@@ -1315,15 +1365,65 @@ export class MarineBuyNowModalComponent implements OnInit {
         // Initialize all required data from backend APIs
         this.fetchMarineProducts();
         this.fetchCategories();
-        this.fetchCountries();
         
-        // Initialize filtered observables with empty arrays
-        this.filteredCategories.next([]);
-        this.filteredCargoTypes.next([]);
-        this.filteredCountries.next([]);
+        // Load initial countries (empty search to get all)
+        this.fetchCountries('');
+        
+        // Only initialize counties since it's client-side data
+        this.filteredCounties.next(this.kenyanCounties.slice());
+        
+        // Initialize empty arrays for ports (will be loaded when country is selected)
         this.filteredLoadingPorts.next([]);
         this.filteredDischargePorts.next([]);
-        this.filteredCounties.next(this.kenyanCounties.slice());
+        
+        console.log('Data initialization started...');
+    }
+
+    private triggerInitialSearch(): void {
+        // Trigger initial empty searches to populate dropdowns
+        console.log('Triggering initial search for all dropdowns...');
+        
+        // Trigger country search with empty term to load initial data
+        if (this.countries.length === 0) {
+            this.countrySearchCtrl.setValue('');
+        }
+        
+        // Trigger category search with empty term to load initial data
+        if (this.categories.length === 0) {
+            this.categorySearchCtrl.setValue('');
+        }
+        
+        // Counties are already loaded (client-side data)
+        console.log('Initial search triggered for all API-based dropdowns');
+    }
+
+    public onDropdownOpen(dropdownType: 'countries' | 'categories' | 'loadingPorts' | 'dischargePorts'): void {
+        console.log(`Dropdown opened: ${dropdownType}`);
+        
+        switch (dropdownType) {
+            case 'countries':
+                if (this.countries.length === 0 && !this.isLoadingCountries) {
+                    this.fetchCountries('');
+                }
+                break;
+            case 'categories':
+                if (this.categories.length === 0 && !this.isLoadingCategories) {
+                    this.fetchCategories('');
+                }
+                break;
+            case 'loadingPorts':
+                const countryId = this.shipmentForm.get('countryOfOrigin')?.value;
+                if (countryId && this.loadingPorts.length === 0 && !this.isLoadingLoadingPorts) {
+                    this.fetchPorts('loading', '');
+                }
+                break;
+            case 'dischargePorts':
+                const countryIdDischarge = this.shipmentForm.get('countryOfOrigin')?.value;
+                if (countryIdDischarge && this.dischargePorts.length === 0 && !this.isLoadingDischargePorts) {
+                    this.fetchPorts('discharge', '');
+                }
+                break;
+        }
     }
 
     private showErrorMessage(message: string): void {
@@ -1504,25 +1604,33 @@ export class MarineBuyNowModalComponent implements OnInit {
         this.shipmentForm.get('sumInsured')?.enable();
         this.shipmentForm.get('goodsDescription')?.enable();
 
-        // Fetch ports if country is already selected
-        const countryId = this.shipmentForm.get('countryOfOrigin')?.value;
-        if (countryId) {
-            this.loadingPortPage = 0;
-            this.dischargePortPage = 0;
-            this.fetchPorts('loading');
-            this.fetchPorts('discharge');
-        }
+        // Ports will be fetched automatically when country is selected via valueChanges subscription
     }
 
     private fetchPorts(type: 'loading' | 'discharge', searchTerm: string = ''): void {
         const countryId = this.shipmentForm.get('countryOfOrigin')?.value;
         
         if (!countryId) {
-            // Don't fetch ports if no country is selected
+            // Clear ports if no country is selected
+            if (type === 'loading') {
+                this.loadingPorts = [];
+                this.filteredLoadingPorts.next([]);
+            } else {
+                this.dischargePorts = [];
+                this.filteredDischargePorts.next([]);
+            }
             return;
         }
 
         const page = type === 'loading' ? this.loadingPortPage : this.dischargePortPage;
+        
+        console.log(`=== FETCHING ${type.toUpperCase()} PORTS ===`);
+        console.log('Country ID:', countryId);
+        console.log('Search term:', searchTerm);
+        console.log('Page:', page);
+        console.log('Page size:', this.pageSize);
+        console.log('API call: getPorts(countryId, "all", page, pageSize, searchTerm)');
+        console.log(`=== END FETCH PARAMS ===`);
         
         if (type === 'loading') {
             this.isLoadingLoadingPorts = true;
@@ -1532,8 +1640,28 @@ export class MarineBuyNowModalComponent implements OnInit {
 
         this.userService.getPorts(countryId, 'all', page, this.pageSize, searchTerm).subscribe({
             next: (response) => {
+                console.log(`Raw ${type} ports API response:`, response);
                 const newPorts = response?.pageItems || response?.data || [];
                 console.log(`${type} ports loaded for country ${countryId}:`, newPorts.length);
+                
+                if (newPorts.length > 0) {
+                    console.log(`=== ${type.toUpperCase()} PORTS API ANALYSIS ===`);
+                    console.log(`Sample ${type} port object:`, newPorts[0]);
+                    console.log(`Available properties:`, Object.keys(newPorts[0]));
+                    console.log(`Property values:`, newPorts[0]);
+                    
+                    // Test different possible property names
+                    const testPort = newPorts[0];
+                    console.log(`Testing property names for ${type} ports:`);
+                    console.log('- id:', testPort.id);
+                    console.log('- portId:', testPort.portId);
+                    console.log('- portid:', testPort.portid);
+                    console.log('- name:', testPort.name);
+                    console.log('- portName:', testPort.portName);
+                    console.log('- portname:', testPort.portname);
+                    console.log('- pname:', testPort.pname);
+                    console.log(`=== END ${type.toUpperCase()} PORTS ANALYSIS ===`);
+                }
                 
                 if (type === 'loading') {
                     // Append to existing if pagination, otherwise replace
@@ -1556,7 +1684,12 @@ export class MarineBuyNowModalComponent implements OnInit {
                 }
             },
             error: (err) => {
-                console.error(`Error fetching ${type} ports for country ${countryId}:`, err);
+                console.log(`=== ${type.toUpperCase()} PORTS API ERROR ===`);
+                console.log('Error status:', err.status);
+                console.log('Error message:', err.message);
+                console.log('Error URL:', err.url);
+                console.log('Full error object:', err);
+                console.log(`=== END ${type.toUpperCase()} PORTS ERROR ===`);
                 
                 if (type === 'loading') {
                     this.loadingPorts = [];
@@ -1567,9 +1700,27 @@ export class MarineBuyNowModalComponent implements OnInit {
                     this.filteredDischargePorts.next([]);
                     this.isLoadingDischargePorts = false;
                 }
+                
+                // Handle different error types gracefully
+                if (err.status === 401) {
+                    console.error(`${type} ports API authentication failed. Backend needs to fix authentication for ports endpoint.`);
+                    console.error(`API URL: ${err.url}`);
+                    console.error(`This is a backend authentication issue that needs to be resolved.`);
+                } else if (err.status === 0) {
+                    console.warn(`${type} ports API unreachable. Network or CORS issue.`);
+                    if (searchTerm) {
+                        this.showErrorMessage(`Network error loading ${type} ports. Please check your connection.`);
+                    }
+                } else {
+                    console.error(`Unexpected error loading ${type} ports:`, err.status, err.message);
+                    if (searchTerm) {
+                        this.showErrorMessage(`Failed to load ${type} ports. Please try again or select a different country.`);
+                    }
+                }
             }
         });
     }
+
 
     // Scroll event handlers for infinite scroll (server-side only)
     onCountryScroll(): void {
