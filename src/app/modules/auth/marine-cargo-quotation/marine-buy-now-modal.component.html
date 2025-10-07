@@ -87,7 +87,7 @@
           </div>
 
           <!-- Personal Details & KYC -->
-          <div class="mb-3 mt-4" [class.disabled-section]="!shipmentForm.get('agreeToTerms')?.value">
+          <div class="mb-3 mt-2" [class.disabled-section]="!shipmentForm.get('agreeToTerms')?.value">
             <h2 class="text-sm font-semibold text-gray-900 mb-3">Importer Details</h2>
             <div *ngIf="!shipmentForm.get('agreeToTerms')?.value" class="disabled-overlay">
               <mat-icon>lock</mat-icon>
@@ -136,7 +136,7 @@
           </div>
 
           <!-- Shipment Details -->
-          <div class="mb-3 mt-4" [class.disabled-section]="!shipmentForm.get('agreeToTerms')?.value">
+          <div class="mb-3 mt-2" [class.disabled-section]="!shipmentForm.get('agreeToTerms')?.value">
             <h2 class="text-sm font-semibold text-gray-900 mb-3">Shipment Details</h2>
             <div *ngIf="!shipmentForm.get('agreeToTerms')?.value" class="disabled-overlay">
               <mat-icon>lock</mat-icon>
@@ -315,13 +315,13 @@
         <div class="bg-white rounded-lg shadow-sm p-2 lg:h-full flex flex-col">
           <h2 class="text-base font-semibold text-gray-900 mb-2 text-center">Payment</h2>
           
-          <!-- Cargo Protection Badge -->
-          <div class="cargo-protection-badge mb-3">
-            <div class="protection-icon">
-              <mat-icon class="shield-icon">verified_user</mat-icon>
+          <!-- Cargo Protection Card -->
+          <div class="cargo-protection-card mb-3">
+            <div class="protection-header">
+              <span class="protection-title">Cargo Protection</span>
+              <mat-icon class="info-icon">info</mat-icon>
             </div>
-            <div class="protection-text">
-              <span class="protection-label">Cargo Protection</span>
+            <div class="protection-content">
               <span class="protection-value">{{ getCargoProtectionName() }}</span>
             </div>
           </div>
@@ -353,21 +353,11 @@
             <span class="text-blue-600">KES {{ total | number:'1.2-2' }}</span>
           </div>
           
-          <!-- M-Pesa Logo -->
-          <div class="mb-2 flex justify-center">
-            <div class="bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm">
-              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvbyhbvv75IhuEeL501ZQh_tuu3CwZ6EZWGw&s" 
-                   alt="M-Pesa" 
-                   class="h-8 object-contain">
-            </div>
-          </div>
-          
           <!-- M-Pesa Number Field -->
           <div class="mb-4">
             <mat-form-field appearance="outline" class="w-full">
               <mat-label>M-Pesa Number</mat-label>
               <input matInput formControlName="mpesaNumber" placeholder="07XXXXXXXX" maxlength="10">
-              <mat-hint>Enter your M-Pesa number (10 digits starting with 07 or 01)</mat-hint>
             </mat-form-field>
           </div>
           

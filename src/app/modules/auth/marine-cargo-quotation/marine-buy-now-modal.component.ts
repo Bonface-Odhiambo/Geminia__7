@@ -625,114 +625,58 @@ export interface MarineBuyNowData {
             color: white !important;
         }
 
-        /* Cargo Protection Badge Styles */
-        .cargo-protection-badge {
+        /* Cargo Protection Card Styles */
+        .cargo-protection-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 12px 16px;
+            transition: all 0.2s ease;
+        }
+
+        .cargo-protection-card:hover {
+            border-color: #04b2e1;
+            box-shadow: 0 2px 8px rgba(4, 178, 225, 0.1);
+        }
+
+        .protection-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #04b2e1 0%, #21275c 100%);
-            border-radius: 12px;
-            padding: 14px 20px;
-            box-shadow: 0 6px 20px rgba(4, 178, 225, 0.25), 0 2px 8px rgba(33, 39, 92, 0.15);
-            border: 2px solid rgba(255, 255, 255, 0.15);
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 8px;
         }
 
-        .cargo-protection-badge::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
-            transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .cargo-protection-badge::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%, rgba(255, 255, 255, 0.05) 100%);
-            border-radius: 12px;
-            pointer-events: none;
-        }
-
-        .cargo-protection-badge:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(4, 178, 225, 0.3), 0 4px 12px rgba(33, 39, 92, 0.2);
-            border-color: rgba(255, 255, 255, 0.25);
-        }
-
-        .cargo-protection-badge:hover::before {
-            left: 100%;
-        }
-
-        .cargo-protection-badge:active {
-            transform: translateY(0);
-            transition-duration: 0.1s;
-        }
-
-        .protection-icon {
-            margin-right: 12px;
-            z-index: 1;
-        }
-
-        .shield-icon {
-            color: white;
-            font-size: 28px;
-            width: 28px;
-            height: 28px;
-            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.2));
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-        }
-
-        .cargo-protection-badge:hover .shield-icon {
-            animation: none;
-            transform: scale(1.1);
-            transition: transform 0.3s ease;
-        }
-
-        .protection-text {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            z-index: 1;
-        }
-
-        .protection-label {
-            color: rgba(255, 255, 255, 0.95);
+        .protection-title {
+            color: #6c757d;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 500;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 4px;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        .info-icon {
+            color: #04b2e1;
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .info-icon:hover {
+            color: #21275c;
+        }
+
+        .protection-content {
+            display: flex;
+            align-items: center;
         }
 
         .protection-value {
-            color: white;
-            font-size: 16px;
-            font-weight: 800;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+            color: #212529;
+            font-size: 14px;
+            font-weight: 600;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            letter-spacing: 0.5px;
         }
 
         /* Pay Now Button Hover Effect */
@@ -779,50 +723,45 @@ export interface MarineBuyNowData {
             left: 100%;
         }
 
-        /* Responsive Design for Cargo Protection Badge */
+        /* Responsive Design for Cargo Protection Card */
         @media (max-width: 640px) {
-            .cargo-protection-badge {
-                padding: 12px 16px;
+            .cargo-protection-card {
+                padding: 10px 12px;
                 margin-bottom: 16px;
             }
 
-            .shield-icon {
-                font-size: 24px;
-                width: 24px;
-                height: 24px;
-            }
-
-            .protection-icon {
-                margin-right: 10px;
-            }
-
-            .protection-label {
+            .protection-title {
                 font-size: 11px;
-                letter-spacing: 0.8px;
             }
 
             .protection-value {
+                font-size: 13px;
+            }
+
+            .info-icon {
                 font-size: 14px;
+                width: 14px;
+                height: 14px;
             }
         }
 
         @media (min-width: 641px) and (max-width: 1023px) {
-            .cargo-protection-badge {
-                padding: 13px 18px;
+            .cargo-protection-card {
+                padding: 11px 14px;
             }
 
-            .shield-icon {
-                font-size: 26px;
-                width: 26px;
-                height: 26px;
-            }
-
-            .protection-label {
+            .protection-title {
                 font-size: 11.5px;
             }
 
             .protection-value {
+                font-size: 13.5px;
+            }
+
+            .info-icon {
                 font-size: 15px;
+                width: 15px;
+                height: 15px;
             }
         }
     `]
