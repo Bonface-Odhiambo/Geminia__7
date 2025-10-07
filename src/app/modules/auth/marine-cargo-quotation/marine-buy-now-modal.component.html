@@ -15,8 +15,8 @@
   <div *ngIf="!isLoading" class="modal-content bg-gray-50 py-2 px-3">
     <div class="max-w-full mx-auto h-full">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 h-full">
-        <!-- Main Form Section -->
-        <div class="lg:col-span-2 overflow-y-auto">
+        <!-- Main Form Section - Order 1 on mobile, Order 1 on desktop -->
+        <div class="lg:col-span-2 overflow-y-auto order-1">
           <div class="bg-white rounded-lg shadow-sm p-3">
             
             <div class="recalculation-notice">
@@ -25,8 +25,8 @@
             </div>
 
           <!-- Document Uploads -->
-          <div class="mb-2">
-            <h2 class="text-sm font-semibold text-gray-900 mb-2">Document Uploads</h2>
+          <div class="mb-3">
+            <h2 class="text-sm font-semibold text-gray-900 mb-3">Document Uploads</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -92,8 +92,8 @@
           </div>
 
           <!-- Personal Details & KYC -->
-          <div class="mb-2" [class.disabled-section]="!shipmentForm.get('agreeToTerms')?.value">
-            <h2 class="text-sm font-semibold text-gray-900 mb-2">Importer Details</h2>
+          <div class="mb-3 mt-4" [class.disabled-section]="!shipmentForm.get('agreeToTerms')?.value">
+            <h2 class="text-sm font-semibold text-gray-900 mb-3">Importer Details</h2>
             <div *ngIf="!shipmentForm.get('agreeToTerms')?.value" class="disabled-overlay">
               <mat-icon>lock</mat-icon>
               <p>Please agree to the Terms of Use and Data Privacy Policy to enable this section</p>
@@ -141,8 +141,8 @@
           </div>
 
           <!-- Shipment Details -->
-          <div class="mb-2" [class.disabled-section]="!shipmentForm.get('agreeToTerms')?.value">
-            <h2 class="text-sm font-semibold text-gray-900 mb-2">Shipment Details</h2>
+          <div class="mb-3 mt-4" [class.disabled-section]="!shipmentForm.get('agreeToTerms')?.value">
+            <h2 class="text-sm font-semibold text-gray-900 mb-3">Shipment Details</h2>
             <div *ngIf="!shipmentForm.get('agreeToTerms')?.value" class="disabled-overlay">
               <mat-icon>lock</mat-icon>
               <p>Please agree to the Terms of Use and Data Privacy Policy to enable this section</p>
@@ -288,9 +288,9 @@
         </div>
       </div>
 
-      <!-- Payment Summary Section -->
-      <div class="lg:col-span-1">
-        <div class="bg-white rounded-lg shadow-sm p-3 h-full flex flex-col">
+      <!-- Payment Summary Section - Order 2 on mobile, Order 2 on desktop -->
+      <div class="lg:col-span-1 order-2">
+        <div class="bg-white rounded-lg shadow-sm p-3 lg:h-full flex flex-col">
           <h2 class="text-lg font-semibold text-gray-900 mb-3 text-center">Payment</h2>
           
           <!-- Cargo Protection Info -->

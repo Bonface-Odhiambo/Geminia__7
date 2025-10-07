@@ -13,6 +13,9 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatRadioModule } from '@angular/material/radio';
 import { Subject, takeUntil, debounceTime } from 'rxjs';
 import { QuoteService } from '../shared/services/quote.service';
 import { UserService } from '../../../core/user/user.service';
@@ -42,6 +45,9 @@ export interface ShipmentDetailsData {
         MatDividerModule,
         MatCardModule,
         MatCheckboxModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatRadioModule,
         PaymentModalComponent
     ],
     template: `
@@ -129,7 +135,9 @@ export interface ShipmentDetailsData {
                                 <mat-divider class="section-divider"></mat-divider>
 
                                 <!-- Shipment Information Fields -->
-                                <h3 class="section-title mt-6">Shipment Information</h3>
+                                <div class="shipment-info-section">
+                                    <h3 class="section-title">Shipment Information</h3>
+                                </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
 
                                     <!-- Cargo Protection Field -->
@@ -159,53 +167,120 @@ export interface ShipmentDetailsData {
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
-                                        <mat-label>Sum Insured</mat-label>
-                                        <input matInput formControlName="sumassured" type="number" (blur)="onFormChange()">
+                                        <mat-label>Sum Insured (KES)</mat-label>
+                                        <input matInput formControlName="sumassured" type="number" placeholder="Enter amount in KES" (blur)="onFormChange()">
+                                        <span matTextPrefix>KES </span>
+                                        <mat-error *ngIf="shipmentForm.get('sumassured')?.hasError('required')">Sum insured is required</mat-error>
                                     </mat-form-field>
 
-                                    <mat-form-field appearance="outline">
-                                        <mat-label>Packaging Type</mat-label>
-                                        <input matInput formControlName="ucrNumber" (blur)="onFormChange()">
-                                    </mat-form-field>
+                                    <!-- Packaging Type Radio Buttons -->
+                                    <div class="packaging-type-section">
+                                        <label class="section-label">Packaging Type</label>
+                                        <mat-radio-group formControlName="packagingType" class="packaging-radio-group" (change)="onFormChange()">
+                                            <mat-radio-button value="containerized" class="packaging-radio">Containerized</mat-radio-button>
+                                            <mat-radio-button value="non-containerized" class="packaging-radio">Non Containerized</mat-radio-button>
+                                        </mat-radio-group>
+                                    </div>
 
                                     <mat-form-field appearance="outline">
                                         <mat-label>Select Category</mat-label>
-                                        <input matInput formControlName="postalCode" (blur)="onFormChange()">
+                                        <mat-select formControlName="category" (selectionChange)="onFormChange()">
+                                            <mat-option value="general-cargo">General Cargo</mat-option>
+                                            <mat-option value="electronics">Electronics</mat-option>
+                                            <mat-option value="textiles">Textiles</mat-option>
+                                            <mat-option value="machinery">Machinery</mat-option>
+                                            <mat-option value="food-beverages">Food & Beverages</mat-option>
+                                            <mat-option value="chemicals">Chemicals</mat-option>
+                                            <mat-option value="automotive">Automotive</mat-option>
+                                            <mat-option value="other">Other</mat-option>
+                                        </mat-select>
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
                                         <mat-label>Cargo Type</mat-label>
-                                        <input matInput formControlName="consignmentNumber" (blur)="onFormChange()">
+                                        <mat-select formControlName="cargoType" (selectionChange)="onFormChange()">
+                                            <mat-option value="dry-cargo">Dry Cargo</mat-option>
+                                            <mat-option value="liquid-cargo">Liquid Cargo</mat-option>
+                                            <mat-option value="refrigerated">Refrigerated Cargo</mat-option>
+                                            <mat-option value="hazardous">Hazardous Materials</mat-option>
+                                            <mat-option value="bulk">Bulk Cargo</mat-option>
+                                            <mat-option value="fragile">Fragile Items</mat-option>
+                                        </mat-select>
+                                        <mat-error *ngIf="shipmentForm.get('cargoType')?.hasError('required')">Cargo type is required</mat-error>
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
                                         <mat-label>Date of Dispatch</mat-label>
-                                        <input matInput formControlName="postalAddress" (blur)="onFormChange()">
+                                        <input matInput [matDatepicker]="dispatchPicker" formControlName="dateOfDispatch" (dateChange)="onFormChange()" readonly>
+                                        <mat-datepicker-toggle matIconSuffix [for]="dispatchPicker"></mat-datepicker-toggle>
+                                        <mat-datepicker #dispatchPicker></mat-datepicker>
+                                        <mat-error *ngIf="shipmentForm.get('dateOfDispatch')?.hasError('required')">Date of dispatch is required</mat-error>
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
-                                        <mat-label>Estimated Time of Arrival</mat-label>
-                                        <input matInput formControlName="originPortName2" (blur)="onFormChange()">
+                                        <mat-label>Estimated Arrival Time</mat-label>
+                                        <input matInput [matDatepicker]="arrivalPicker" formControlName="estimatedArrival" (dateChange)="onFormChange()" readonly>
+                                        <mat-datepicker-toggle matIconSuffix [for]="arrivalPicker"></mat-datepicker-toggle>
+                                        <mat-datepicker #arrivalPicker></mat-datepicker>
+                                        <mat-error *ngIf="shipmentForm.get('estimatedArrival')?.hasError('required')">Estimated arrival time is required</mat-error>
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
                                         <mat-label>Country of Origin</mat-label>
-                                        <input matInput formControlName="originCountryName" (blur)="onFormChange()">
+                                        <mat-select formControlName="originCountryName" (selectionChange)="onFormChange()">
+                                            <mat-option value="china">China</mat-option>
+                                            <mat-option value="india">India</mat-option>
+                                            <mat-option value="uae">United Arab Emirates</mat-option>
+                                            <mat-option value="usa">United States</mat-option>
+                                            <mat-option value="uk">United Kingdom</mat-option>
+                                            <mat-option value="germany">Germany</mat-option>
+                                            <mat-option value="japan">Japan</mat-option>
+                                            <mat-option value="south-africa">South Africa</mat-option>
+                                            <mat-option value="other">Other</mat-option>
+                                        </mat-select>
+                                        <mat-error *ngIf="shipmentForm.get('originCountryName')?.hasError('required')">Country of origin is required</mat-error>
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
                                         <mat-label>Loading Port</mat-label>
-                                        <input matInput formControlName="originPortName" (blur)="onFormChange()">
+                                        <mat-select formControlName="originPortName" (selectionChange)="onFormChange()">
+                                            <mat-option value="shanghai">Shanghai, China</mat-option>
+                                            <mat-option value="dubai">Dubai, UAE</mat-option>
+                                            <mat-option value="mumbai">Mumbai, India</mat-option>
+                                            <mat-option value="singapore">Singapore</mat-option>
+                                            <mat-option value="rotterdam">Rotterdam, Netherlands</mat-option>
+                                            <mat-option value="hamburg">Hamburg, Germany</mat-option>
+                                            <mat-option value="los-angeles">Los Angeles, USA</mat-option>
+                                            <mat-option value="other">Other</mat-option>
+                                        </mat-select>
+                                        <mat-error *ngIf="shipmentForm.get('originPortName')?.hasError('required')">Loading port is required</mat-error>
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
                                         <mat-label>Port of Discharge</mat-label>
-                                        <input matInput formControlName="destPortName" (blur)="onFormChange()">
+                                        <mat-select formControlName="destPortName" (selectionChange)="onFormChange()">
+                                            <mat-option value="mombasa">Mombasa, Kenya</mat-option>
+                                            <mat-option value="dar-es-salaam">Dar es Salaam, Tanzania</mat-option>
+                                            <mat-option value="durban">Durban, South Africa</mat-option>
+                                            <mat-option value="djibouti">Djibouti</mat-option>
+                                            <mat-option value="other">Other</mat-option>
+                                        </mat-select>
+                                        <mat-error *ngIf="shipmentForm.get('destPortName')?.hasError('required')">Port of discharge is required</mat-error>
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline">
                                         <mat-label>Final Destination</mat-label>
-                                        <input matInput formControlName="countyName" (blur)="onFormChange()">
+                                        <mat-select formControlName="countyName" (selectionChange)="onFormChange()">
+                                            <mat-option value="nairobi">Nairobi</mat-option>
+                                            <mat-option value="mombasa">Mombasa</mat-option>
+                                            <mat-option value="kisumu">Kisumu</mat-option>
+                                            <mat-option value="nakuru">Nakuru</mat-option>
+                                            <mat-option value="eldoret">Eldoret</mat-option>
+                                            <mat-option value="thika">Thika</mat-option>
+                                            <mat-option value="machakos">Machakos</mat-option>
+                                            <mat-option value="other">Other</mat-option>
+                                        </mat-select>
+                                        <mat-error *ngIf="shipmentForm.get('countyName')?.hasError('required')">Final destination is required</mat-error>
                                     </mat-form-field>
 
                                     <!-- M-Pesa Number Field -->
@@ -217,8 +292,10 @@ export interface ShipmentDetailsData {
                                     </mat-form-field>
 
                                     <mat-form-field appearance="outline" class="md:col-span-2">
-                                        <mat-label>Description</mat-label>
-                                        <textarea matInput formControlName="description" rows="3" (blur)="onFormChange()"></textarea>
+                                        <mat-label>Description of Goods</mat-label>
+                                        <textarea matInput formControlName="description" rows="4" placeholder="Describe the goods being shipped" (blur)="onFormChange()"></textarea>
+                                        <mat-hint>Provide detailed description of the cargo</mat-hint>
+                                        <mat-error *ngIf="shipmentForm.get('description')?.hasError('required')">Description is required</mat-error>
                                     </mat-form-field>
 
                                 </div>
@@ -374,13 +451,105 @@ export interface ShipmentDetailsData {
         --bg-light: #f8f9fa;
         --border-color: #e9ecef;
       }
+      
+      /* Global modal dialog overrides for mobile */
+      ::ng-deep .cdk-overlay-pane {
+        max-width: 100vw !important;
+        max-height: 100vh !important;
+      }
+      
+      ::ng-deep .mat-mdc-dialog-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100vw !important;
+        max-height: 100vh !important;
+        width: 100vw !important;
+        height: 100vh !important;
+      }
+      
+      @media (min-width: 768px) {
+        ::ng-deep .mat-mdc-dialog-container {
+          padding: 24px !important;
+          margin: auto !important;
+          width: auto !important;
+          height: auto !important;
+          max-width: 900px !important;
+          max-height: 95vh !important;
+        }
+      }
 
-      .modal-container { max-width: 900px; width: 100%; }
-      .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background-color: var(--primary-color); color: white; }
-      .modal-title { margin: 0; font-size: 20px; font-weight: 600; color: white; }
+      .modal-container { 
+        max-width: 900px; 
+        width: 100%; 
+        height: 100vh;
+        max-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        border-radius: 0;
+      }
+      
+      @media (min-width: 768px) {
+        .modal-container {
+          height: 95vh;
+          max-height: 95vh;
+          margin: 2.5vh auto;
+          border-radius: 8px;
+        }
+      }
+      .modal-header { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        padding: 12px 16px; 
+        background-color: var(--primary-color); 
+        color: white;
+        flex-shrink: 0;
+      }
+      
+      @media (min-width: 768px) {
+        .modal-header {
+          padding: 16px 24px;
+        }
+      }
+      .modal-title { 
+        margin: 0; 
+        font-size: 16px; 
+        font-weight: 600; 
+        color: white; 
+      }
+      
+      @media (min-width: 768px) {
+        .modal-title {
+          font-size: 20px;
+        }
+      }
       .close-button { color: rgba(255,255,255,0.7); }
-      .modal-content { padding: 0; }
-      .modal-actions { padding: 16px 24px; border-top: 1px solid var(--border-color); }
+      .modal-content { 
+        padding: 0; 
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
+        height: calc(100vh - 140px);
+      }
+      
+      @media (min-width: 768px) {
+        .modal-content {
+          height: calc(95vh - 140px);
+        }
+      }
+      .modal-actions { 
+        padding: 12px 16px; 
+        border-top: 1px solid var(--border-color);
+        flex-shrink: 0;
+        background-color: white;
+      }
+      
+      @media (min-width: 768px) {
+        .modal-actions {
+          padding: 16px 24px;
+        }
+      }
       
       /* Tab Styles */
       .payment-tabs {
@@ -406,8 +575,18 @@ export interface ShipmentDetailsData {
       }
       
       .tab-content {
-        padding: 24px;
-        min-height: 400px;
+        padding: 16px;
+        min-height: 0;
+        height: calc(100vh - 220px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      @media (min-width: 768px) {
+        .tab-content {
+          padding: 24px;
+          height: calc(95vh - 220px);
+        }
       }
       
       /* Premium Card Styles */
@@ -667,16 +846,24 @@ export interface ShipmentDetailsData {
       /* Document Upload Styles */
       .document-uploads-section {
         background-color: var(--bg-light);
-        padding: 20px;
+        padding: 12px;
         border-radius: 8px;
-        margin-bottom: 24px;
+        margin-bottom: 16px;
+      }
+      
+      @media (min-width: 768px) {
+        .document-uploads-section {
+          padding: 20px;
+          margin-bottom: 24px;
+        }
       }
       
       .section-title {
         font-size: 18px;
         font-weight: 600;
         color: var(--primary-color);
-        margin-bottom: 16px;
+        margin: 0;
+        padding: 0;
       }
       
       .document-upload-item {
@@ -747,6 +934,11 @@ export interface ShipmentDetailsData {
         margin: 24px 0;
       }
       
+      .shipment-info-section {
+        margin-bottom: 16px;
+        clear: both;
+      }
+      
       /* Cargo Protection Field in Shipment Form */
       .cargo-protection-field {
         background-color: #f0f9ff;
@@ -768,6 +960,99 @@ export interface ShipmentDetailsData {
         font-size: 16px;
         font-weight: 700;
         color: #0c4a6e;
+      }
+      
+      /* Form Layout Improvements */
+      .grid {
+        display: grid;
+        position: relative;
+        margin-top: 0;
+      }
+      
+      .grid-cols-1 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+      }
+      
+      @media (min-width: 768px) {
+        .md\\:grid-cols-2 {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        
+        .md\\:col-span-2 {
+          grid-column: span 2 / span 2;
+        }
+      }
+      
+      .gap-x-6 {
+        column-gap: 1.5rem;
+      }
+      
+      .gap-y-4 {
+        row-gap: 1rem;
+      }
+      
+      /* Ensure the form grid has bottom spacing */
+      .grid.grid-cols-1.md\\:grid-cols-2 {
+        padding-bottom: 2rem;
+      }
+      
+      /* Ensure form fields are properly sized */
+      mat-form-field {
+        width: 100%;
+        margin-bottom: 8px;
+      }
+      
+      /* Form container padding */
+      .p-4 {
+        padding: 0.5rem;
+        padding-bottom: 3rem; /* Extra bottom padding to ensure last fields are visible */
+      }
+      
+      @media (min-width: 768px) {
+        .p-4 {
+          padding: 1rem;
+          padding-bottom: 2rem;
+        }
+      }
+      
+      /* Section spacing */
+      .mb-6 {
+        margin-bottom: 1.5rem;
+      }
+      
+      .mb-4 {
+        margin-bottom: 1rem;
+      }
+      
+      /* Packaging Type Section Styles */
+      .packaging-type-section {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 16px;
+        width: 100%;
+      }
+      
+      .section-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 12px;
+      }
+      
+      .packaging-radio-group {
+        display: flex;
+        gap: 24px;
+      }
+      
+      .packaging-radio {
+        margin-right: 16px;
+      }
+      
+      ::ng-deep .packaging-radio .mdc-radio {
+        --mdc-radio-selected-icon-color: var(--secondary-color);
+        --mdc-radio-selected-hover-icon-color: var(--secondary-color);
+        --mdc-radio-selected-pressed-icon-color: var(--secondary-color);
+        --mdc-radio-selected-focus-icon-color: var(--secondary-color);
       }
     `]
 })
@@ -811,19 +1096,22 @@ export class ShipmentDetailsModalComponent implements OnInit, OnDestroy {
             // Shipment Information
             shippingModeName: [''],
             importerType: [''],
-            originCountryName: [''],
-            consignmentNumber: [''],
+            originCountryName: ['', Validators.required],
             sumassured: [null, Validators.required],
-            description: [''],
+            description: ['', Validators.required],
             vesselName: [''],
-            originPortName: [''],
-            originPortName2: [''],
-            destPortName: [''],
-            countyName: [''],
+            originPortName: ['', Validators.required],
+            destPortName: ['', Validators.required],
+            countyName: ['', Validators.required],
             idfNumber: [''],
-            ucrNumber: [''],
-            postalAddress: [''],
-            postalCode: [''],
+            
+            // New form controls
+            packagingType: ['containerized', Validators.required],
+            category: ['', Validators.required],
+            cargoType: ['', Validators.required],
+            dateOfDispatch: [null, Validators.required],
+            estimatedArrival: [null, Validators.required],
+            
             phoneNumber: ['', [Validators.required, Validators.pattern(/^254[0-9]{9}$/)]]
         });
 

@@ -143,7 +143,15 @@ export interface MarineBuyNowData {
         /* Compact section headers */
         h2 {
             font-size: 0.875rem !important;
-            margin-bottom: 0.5rem !important;
+            margin-bottom: 0.75rem !important;
+            margin-top: 0 !important;
+            padding-top: 0.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        h2:first-of-type {
+            border-top: none;
+            padding-top: 0;
         }
 
         /* Compact file upload areas */
@@ -165,6 +173,161 @@ export interface MarineBuyNowData {
             position: relative;
             pointer-events: none;
             opacity: 0.5;
+        }
+
+        /* Section spacing */
+        .mb-3 {
+            margin-bottom: 1rem !important;
+        }
+
+        .mt-4 {
+            margin-top: 1.5rem !important;
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 1023px) {
+            .modal-content {
+                overflow-y: auto !important;
+            }
+
+            .grid {
+                display: flex !important;
+                flex-direction: column !important;
+            }
+
+            .order-1 {
+                order: 1 !important;
+            }
+
+            .order-2 {
+                order: 2 !important;
+                margin-top: 1rem !important;
+            }
+
+            .overflow-y-auto {
+                overflow-y: visible !important;
+                max-height: none !important;
+            }
+
+            /* Ensure payment section is not sticky on mobile */
+            .lg\\:h-full {
+                height: auto !important;
+            }
+
+            /* Adjust modal header for mobile */
+            .modal-title {
+                font-size: 18px !important;
+            }
+
+            /* Adjust padding for mobile */
+            .modal-content {
+                padding: 0.5rem !important;
+            }
+
+            .bg-white.rounded-lg.shadow-sm {
+                padding: 1rem !important;
+            }
+
+            /* Make form fields stack properly on mobile */
+            .grid.grid-cols-1.md\\:grid-cols-2 {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+            }
+
+            /* Adjust recalculation notice for mobile */
+            .recalculation-notice {
+                font-size: 0.65rem !important;
+                padding: 8px !important;
+            }
+
+            .recalculation-notice mat-icon {
+                font-size: 14px !important;
+                width: 14px !important;
+                height: 14px !important;
+            }
+        }
+
+        /* Tablet Responsive Styles */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .grid.grid-cols-1.md\\:grid-cols-2 {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+        /* Small Mobile Devices */
+        @media (max-width: 640px) {
+            .modal-header {
+                padding: 12px 16px !important;
+            }
+
+            .modal-title {
+                font-size: 16px !important;
+            }
+
+            h2 {
+                font-size: 0.8rem !important;
+            }
+
+            /* Adjust file upload areas for small screens */
+            .border-dashed {
+                padding: 6px !important;
+            }
+
+            .border-dashed button {
+                font-size: 0.75rem !important;
+            }
+
+            .border-dashed p {
+                font-size: 0.65rem !important;
+            }
+
+            /* Adjust form field sizes */
+            ::ng-deep .mat-mdc-form-field {
+                font-size: 0.875rem !important;
+            }
+
+            /* Adjust payment section spacing */
+            .space-y-2 > * + * {
+                margin-top: 0.5rem !important;
+            }
+
+            /* Make buttons more touch-friendly */
+            button {
+                min-height: 44px !important;
+            }
+
+            /* Adjust checkbox and radio button sizes */
+            ::ng-deep .mat-mdc-checkbox,
+            ::ng-deep .mat-mdc-radio-button {
+                font-size: 0.875rem !important;
+            }
+
+            /* Improve disabled overlay on mobile */
+            .disabled-overlay {
+                padding: 16px !important;
+                max-width: 90% !important;
+            }
+
+            .disabled-overlay mat-icon {
+                font-size: 36px !important;
+                width: 36px !important;
+                height: 36px !important;
+            }
+
+            .disabled-overlay p {
+                font-size: 12px !important;
+            }
+        }
+
+        /* Landscape mobile orientation */
+        @media (max-width: 1023px) and (orientation: landscape) {
+            .modal-container {
+                height: auto !important;
+            }
+
+            .modal-content {
+                max-height: none !important;
+            }
         }
 
         .disabled-overlay {
