@@ -69,6 +69,14 @@ export const appRoutes: Route[] = [
                         path: 'marine-quote', // This will correctly match '/sign-up/marine-quote'
                         loadChildren: () => import('app/modules/auth/marine-cargo-quotation/marine-cargo-quotation.routes'),
                     },
+                    {
+                        path: 'admin-test',
+                        loadComponent: () => import('app/test-admin.component').then(m => m.TestAdminComponent),
+                    },
+                    {
+                        path: 'admin-dashboard',
+                        loadChildren: () => import('app/modules/admin/public-admin.routes').then(m => m.publicAdminRoutes),
+                    },
                 ]
             }
             // --- END OF FIX ---
@@ -108,20 +116,14 @@ export const appRoutes: Route[] = [
 		],
 	},
 
-	// --- Admin routes (Retained for future use) ---
+	// --- Admin routes ---
 	{
-		path: "",
+		path: "admin",
 		canActivate: [AuthGuard],
 		canActivateChild: [AuthGuard],
-		component: LayoutComponent,
 		resolve: {
 			initialData: initialDataResolver,
 		},
-		children: [
-			{
-				path: "example",
-				loadChildren: () => import("app/modules/admin/example/example.routes"),
-			},
-		],
+		loadChildren: () => import("app/modules/admin/admin.routes").then(m => m.adminRoutes),
 	},
 ];

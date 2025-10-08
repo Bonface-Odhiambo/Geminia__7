@@ -356,13 +356,13 @@
               <span class="font-medium">KES {{ (premium * 0.0005) | number:'1.2-2' }}</span>
             </div>
           </div>
-          <div class="flex justify-between text-base font-semibold mb-2">
+          <div class="flex justify-between text-base font-semibold mb-4 pb-3 border-b border-gray-200">
             <span>Total Amount</span>
             <span class="text-blue-600">KES {{ total | number:'1.2-2' }}</span>
           </div>
           
           <!-- M-Pesa Number Field -->
-          <div class="mb-4">
+          <div class="mb-4 mt-2">
             <mat-form-field appearance="outline" class="w-full">
               <mat-label>M-Pesa Number</mat-label>
               <input matInput formControlName="mpesaNumber" placeholder="07XXXXXXXX" maxlength="10">

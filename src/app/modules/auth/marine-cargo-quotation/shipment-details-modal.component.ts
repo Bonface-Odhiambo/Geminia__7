@@ -19,7 +19,6 @@ import { MatRadioModule } from '@angular/material/radio';
 import { Subject, takeUntil, debounceTime } from 'rxjs';
 import { QuoteService } from '../shared/services/quote.service';
 import { UserService } from '../../../core/user/user.service';
-import { PaymentModalComponent } from './marine-cargo.component';
 
 export interface ShipmentDetailsData {
     shippingId: number;
@@ -47,8 +46,7 @@ export interface ShipmentDetailsData {
         MatCheckboxModule,
         MatDatepickerModule,
         MatNativeDateModule,
-        MatRadioModule,
-        PaymentModalComponent
+        MatRadioModule
     ],
     template: `
         <div class="modal-container">

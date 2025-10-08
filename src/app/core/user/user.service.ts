@@ -79,7 +79,7 @@ export class UserService {
     }
 
     getQuoteStatus(quoteId: number): Observable<string> {
-        return this._httpClient.get<string>(`${this.baseUrl}/quote/quotStatus/${quoteId}`);
+        return this._httpClient.get<string>(`${this.baseUrl}/quote/quoteStatus/${quoteId}`);
     }
 
     getShippingData(applicationId: number): Observable<any> {
@@ -93,8 +93,6 @@ export class UserService {
 
         return this._httpClient.get<any>(`${this.baseUrl}/shippingapplication/approvedapplications`, { params });
     }
-
-
 
     downloadCertificate(id: number): Observable<Blob> {
         return this._httpClient.get(`${this.baseUrl}/shippingapplication/coredigitalCert?id=${id}`, {
@@ -138,11 +136,9 @@ export class UserService {
         let params = new HttpParams()
             .set('type', type)
             .set('offset', offset.toString())
-            .set('limit', limit.toString());
+            .set('limit', limit.toString())
+            .set('sqlSearch', sqlSearch || ''); // Always include sqlSearch, even if empty
 
-        if (sqlSearch) {
-            params = params.set('sqlSearch', sqlSearch);
-        }
         return this._httpClient.get<any>(
             `${this.baseUrl}/ports/${countryId}`,
             { params }

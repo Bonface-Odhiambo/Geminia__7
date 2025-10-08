@@ -25,6 +25,30 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatListModule } from '@angular/material/list';
+import { MatCardModule } from '@angular/material/card';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatRippleModule } from '@angular/material/core';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
 import {
     forkJoin,
     Subject,
@@ -1740,14 +1764,38 @@ export class KycShippingPaymentModalComponent implements OnInit, OnDestroy {
         MatDialogModule, 
         MatIconModule, 
         TitleCasePipe, 
-        ThousandsSeparatorValueAccessor, 
-        TermsPrivacyModalComponent, 
-        PaymentModalComponent, 
-        KycShippingPaymentModalComponent,
+        ThousandsSeparatorValueAccessor,
         MatSelectModule,
         NgxMatSelectSearchModule,
         ScrollingModule,
-        MatFormFieldModule
+        MatFormFieldModule,
+        MatInputModule,
+        MatAutocompleteModule,
+        MatChipsModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatRadioModule,
+        MatSlideToggleModule,
+        MatSliderModule,
+        MatSidenavModule,
+        MatTabsModule,
+        MatToolbarModule,
+        MatTooltipModule,
+        MatListModule,
+        MatCardModule,
+        MatGridListModule,
+        MatMenuModule,
+        MatProgressBarModule,
+        MatProgressSpinnerModule,
+        MatRippleModule,
+        MatSnackBarModule,
+        MatStepperModule,
+        MatExpansionModule,
+        MatButtonToggleModule,
+        MatDividerModule,
+        MatPaginatorModule,
+        MatSortModule,
+        MatTableModule,
     ],
     providers: [DatePipe],
     templateUrl: './marine-cargo-quotation.component.html',

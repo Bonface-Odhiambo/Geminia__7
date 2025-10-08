@@ -1005,18 +1005,156 @@ export class MarineBuyNowModalComponent implements OnInit, AfterViewInit {
         if (this.shipmentForm.invalid) {
             // Mark all fields as touched to show validation errors
             this.shipmentForm.markAllAsTouched();
+            this.snackBar.open('Please fill in all required fields correctly', 'Close', {
+                duration: 5000,
+                panelClass: ['error-snackbar']
+            });
             return;
         }
 
         this.isSubmitting = true;
-        console.log('Form submitted:', this.shipmentForm.value);
+        const formValue = this.shipmentForm.getRawValue(); // Use getRawValue to include disabled fields
         
-        // Simulate API call
-        setTimeout(() => {
-            this.isSubmitting = false;
-            alert('Payment processing would happen here');
-            this.dialogRef.close({ success: true });
-        }, 2000);
+        console.log('=== BUY NOW MODAL - FORM SUBMISSION ===');
+        console.log('Form data:', formValue);
+        console.log('M-Pesa Number:', formValue.mpesaNumber);
+        console.log('Total Amount:', this.total);
+        console.log('Quote ID:', this.data.quoteId);
+        
+        // First, create the shipping application
+        const formData = new FormData();
+        
+        // Add all form fields to FormData
+        formData.append('quoteId', this.data.quoteId);
+        formData.append('firstName', formValue.firstName);
+        formData.append('lastName', formValue.lastName);
+        formData.append('emailAddress', formValue.emailAddress);
+        formData.append('phoneNumber', formValue.phoneNumber);
+        formData.append('kraPin', formValue.kraPin);
+        formData.append('idNumber', formValue.idNumber);
+        formData.append('streetAddress', formValue.streetAddress);
+        formData.append('postalCode', formValue.postalCode);
+        formData.append('modeOfShipment', formValue.modeOfShipment);
+        formData.append('tradeType', formValue.tradeType);
+        formData.append('cargoProtection', formValue.cargoProtection);
+        formData.append('commodityType', formValue.commodityType);
+        formData.append('selectCategory', formValue.selectCategory);
+        formData.append('salesCategory', formValue.salesCategory);
+        formData.append('countryOfOrigin', formValue.countryOfOrigin);
+        formData.append('gcrNumber', formValue.gcrNumber || '');
+        formData.append('loadingPort', formValue.loadingPort);
+        formData.append('portOfDischarge', formValue.portOfDischarge);
+        formData.append('vesselName', formValue.vesselName || '');
+        formData.append('finalDestination', formValue.finalDestination);
+        formData.append('dateOfDispatch', formValue.dateOfDispatch);
+        formData.append('estimatedArrival', formValue.estimatedArrival);
+        formData.append('sumInsured', formValue.sumInsured);
+        formData.append('goodsDescription', formValue.goodsDescription);
+        formData.append('mpesaNumber', formValue.mpesaNumber);
+        formData.append('paymentMethod', formValue.paymentMethod);
+        
+        // Add document files
+        if (formValue.idfDocument) {
+            formData.append('idfDocument', formValue.idfDocument);
+        }
+        if (formValue.invoice) {
+            formData.append('invoice', formValue.invoice);
+        }
+        if (formValue.kraPinCertificate) {
+            formData.append('kraPinCertificate', formValue.kraPinCertificate);
+        }
+        if (formValue.nationalId) {
+            formData.append('nationalId', formValue.nationalId);
+        }
+        
+        console.log('Creating shipping application...');
+        
+        // Create the shipping application first
+        this.quoteService.createApplication(formData).pipe(
+            takeUntil(this._onDestroy)
+        ).subscribe({
+            next: (applicationResponse) => {
+                console.log('Shipping application created successfully:', applicationResponse);
+                
+                // Generate reference number for M-Pesa payment
+                const refNo = applicationResponse?.applicationId || 
+                             applicationResponse?.id || 
+                             `MAR-${this.data.quoteId}-${Date.now()}`;
+                
+                console.log('Initiating M-Pesa STK Push...');
+                console.log('Reference Number:', refNo);
+                
+                // Now initiate M-Pesa payment
+                this.quoteService.stkPush(formValue.mpesaNumber, this.total, refNo).pipe(
+                    takeUntil(this._onDestroy)
+                ).subscribe({
+                    next: (paymentResponse) => {
+                        console.log('=== M-PESA STK PUSH SUCCESS ===');
+                        console.log('Payment Response:', paymentResponse);
+                        console.log('CheckoutRequestId:', paymentResponse?.CheckoutRequestID || paymentResponse?.checkoutRequestId);
+                        console.log('=== END M-PESA SUCCESS ===');
+                        
+                        this.isSubmitting = false;
+                        
+                        this.snackBar.open(
+                            'STK Push sent! Please enter your M-Pesa PIN on your phone to complete payment.',
+                            'Close',
+                            {
+                                duration: 8000,
+                                panelClass: ['success-snackbar']
+                            }
+                        );
+                        
+                        // Close modal with success
+                        setTimeout(() => {
+                            this.dialogRef.close({ 
+                                success: true, 
+                                applicationId: applicationResponse?.applicationId || applicationResponse?.id,
+                                checkoutRequestId: paymentResponse?.CheckoutRequestID || paymentResponse?.checkoutRequestId
+                            });
+                        }, 2000);
+                    },
+                    error: (paymentError) => {
+                        console.error('=== M-PESA STK PUSH ERROR ===');
+                        console.error('Error Status:', paymentError.status);
+                        console.error('Error Message:', paymentError.message);
+                        console.error('Error Details:', paymentError.error);
+                        console.error('Full Error Object:', paymentError);
+                        console.error('=== END M-PESA ERROR ===');
+                        
+                        this.isSubmitting = false;
+                        
+                        const errorMessage = paymentError?.error?.message || 
+                                           paymentError?.message || 
+                                           'Payment initiation failed. Please check your M-Pesa number and try again.';
+                        
+                        this.snackBar.open(errorMessage, 'Close', {
+                            duration: 8000,
+                            panelClass: ['error-snackbar']
+                        });
+                    }
+                });
+            },
+            error: (applicationError) => {
+                console.error('=== SHIPPING APPLICATION ERROR ===');
+                console.error('Error Status:', applicationError.status);
+                console.error('Error Message:', applicationError.message);
+                console.error('Error Details:', applicationError.error);
+                console.error('Full Error Object:', applicationError);
+                console.error('=== END APPLICATION ERROR ===');
+                
+                this.isSubmitting = false;
+                
+                const errorMessage = applicationError?.error?.message || 
+                                   applicationError?.message || 
+                                   'Failed to create shipping application. Please try again.';
+                
+                this.snackBar.open(errorMessage, 'Close', {
+                    duration: 8000,
+                    panelClass: ['error-snackbar']
+                });
+            }
+        });
     }
 
     fetchQuoteDetails(): void {
