@@ -248,9 +248,9 @@ export interface MarineBuyNowData {
           background: #555;
         }
 
-        /* Compact form fields */
+        /* Compact form fields with proper spacing for validation messages */
         ::ng-deep .mat-mdc-form-field {
-          margin-bottom: 0.25rem !important;
+            margin-bottom: 1rem !important;
         }
 
         ::ng-deep .mat-mdc-text-field-wrapper {
@@ -316,7 +316,15 @@ export interface MarineBuyNowData {
 
         ::ng-deep .mat-mdc-form-field-hint-wrapper,
         ::ng-deep .mat-mdc-form-field-error-wrapper {
-          padding: 0 !important;
+          padding: 4px 0 !important;
+          margin-top: 4px !important;
+        }
+
+        /* Ensure error messages have proper spacing */
+        ::ng-deep .mat-mdc-form-field-error {
+          font-size: 12px !important;
+          line-height: 1.3 !important;
+          margin-top: 2px !important;
         }
 
         .disabled-section {
