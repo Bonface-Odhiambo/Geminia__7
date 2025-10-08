@@ -12,6 +12,7 @@ import { AuthService } from 'app/core/auth/auth.service';
 })
 export class AdminLayoutComponent implements OnInit {
     adminUser: any = null;
+    isSidebarOpen = false;
 
     constructor(
         private authService: AuthService,
@@ -21,6 +22,10 @@ export class AdminLayoutComponent implements OnInit {
     ngOnInit(): void {
         // Get current admin user data
         this.adminUser = this.authService.getAdminUser();
+    }
+
+    toggleSidebar(): void {
+        this.isSidebarOpen = !this.isSidebarOpen;
     }
 
     logout(): void {
