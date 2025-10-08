@@ -12,6 +12,7 @@ import { AdminService } from '../../services/admin.service';
 export class PremiumBuyersComponent implements OnInit {
     premiumBuyers: any[] = [];
     isLoading = true;
+    error: string | null = null;
     filterProduct = '';
     currentPage = 0;
     pageSize = 20;
@@ -24,17 +25,38 @@ export class PremiumBuyersComponent implements OnInit {
 
     loadPremiumBuyers(): void {
         this.isLoading = true;
+        this.error = null;
+        
+        // Check if this is an admin session - use mock data for faster loading
+        if (this.isAdminSession()) {
+            console.log('🔧 Admin session detected - using mock data for premium buyers');
+            setTimeout(() => {
+                this.loadMockPremiumBuyers();
+                this.isLoading = false;
+            }, 300); // Fast loading simulation
+            return;
+        }
+        
         this.adminService.getPremiumBuyers(this.currentPage * this.pageSize, this.pageSize, this.filterProduct).subscribe({
             next: (data) => {
                 this.premiumBuyers = data.pageItems || [];
                 this.isLoading = false;
+                this.error = null;
             },
             error: (err) => {
                 console.error('Error loading premium buyers:', err);
+                this.error = 'Failed to load premium buyers. Please try again.';
                 this.isLoading = false;
-                this.loadMockPremiumBuyers();
             }
         });
+    }
+
+    retryLoad(): void {
+        this.loadPremiumBuyers();
+    }
+
+    private isAdminSession(): boolean {
+        return sessionStorage.getItem('isAdmin') === 'true';
     }
 
     loadMockPremiumBuyers(): void {

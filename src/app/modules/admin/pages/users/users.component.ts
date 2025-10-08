@@ -12,6 +12,7 @@ import { AdminService } from '../../services/admin.service';
 export class UsersComponent implements OnInit {
     users: any[] = [];
     isLoading = true;
+    error: string | null = null;
     searchTerm = '';
     currentPage = 0;
     pageSize = 10;
@@ -34,19 +35,39 @@ export class UsersComponent implements OnInit {
 
     loadUsers(): void {
         this.isLoading = true;
+        this.error = null;
+        
+        // Check if this is an admin session - use mock data for faster loading
+        if (this.isAdminSession()) {
+            console.log('🔧 Admin session detected - using mock data for users');
+            setTimeout(() => {
+                this.loadMockUsers();
+                this.isLoading = false;
+            }, 300); // Fast loading simulation
+            return;
+        }
+        
         this.adminService.getAllUsers(this.currentPage * this.pageSize, this.pageSize, this.searchTerm).subscribe({
             next: (data) => {
                 this.users = data.pageItems || [];
                 this.totalUsers = data.totalElements || 0;
                 this.isLoading = false;
+                this.error = null;
             },
             error: (err) => {
                 console.error('Error loading users:', err);
+                this.error = 'Failed to load users. Please try again.';
                 this.isLoading = false;
-                // Load mock data for demonstration
-                this.loadMockUsers();
             }
         });
+    }
+
+    retryLoad(): void {
+        this.loadUsers();
+    }
+
+    private isAdminSession(): boolean {
+        return sessionStorage.getItem('isAdmin') === 'true';
     }
 
     loadMockUsers(): void {

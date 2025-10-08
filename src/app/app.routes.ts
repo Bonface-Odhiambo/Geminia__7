@@ -14,6 +14,38 @@ export const appRoutes: Route[] = [
 	},
 	{ path: "signed-in-redirect", pathMatch: "full", redirectTo: "dashboard" },
 
+	// --- Public Admin Routes (No Auth Required) ---
+	{
+		path: "sign-up",
+		component: LayoutComponent,
+		data: {
+			layout: "empty",
+		},
+		children: [
+			// Dashboard route added here to match 'sign-up/dashboard'
+			{
+				path: 'dashboard',
+				loadChildren: () => import('app/modules/auth/dashboard/dashboard.routes'),
+			},
+			{
+				path: 'travel-quote',
+				loadChildren: () => import('app/modules/auth/travel-quote/travel-quote.routes'),
+			},
+			{
+				path: 'marine-quote',
+				loadChildren: () => import('app/modules/auth/marine-cargo-quotation/marine-cargo-quotation.routes'),
+			},
+			{
+				path: 'admin-test',
+				loadComponent: () => import('app/test-admin.component').then(m => m.TestAdminComponent),
+			},
+			{
+				path: 'admin-dashboard',
+				loadChildren: () => import('app/modules/admin/public-admin.routes').then(m => m.publicAdminRoutes),
+			},
+		]
+	},
+
 	// --- Auth routes for GUESTS ---
 	{
 		path: "",
@@ -44,42 +76,6 @@ export const appRoutes: Route[] = [
 				path: "sign-in",
 				loadChildren: () => import("app/modules/auth/sign-in/sign-in.routes"),
 			},
-
-            // --- FIX IS HERE: Create a dedicated parent route for sign-up and quote forms ---
-            {
-                path: 'sign-up',
-                children: [
-                    // Dashboard route added here to match 'sign-up/dashboard'
-                    {
-                        path: 'dashboard',
-                        loadChildren: () => import('app/modules/auth/dashboard/dashboard.routes'),
-                    },
-                    // You will create this component later for the actual sign-up form
-                    // {
-                    //     path: '', // This will match '/sign-up'
-                    //     loadChildren: () => import('app/modules/auth/sign-up/sign-up.routes'),
-                    // },
-					// in app.routes.ts, inside the 'sign-up' children array
-
-					{
-						path: 'travel-quote',
-						loadChildren: () => import('app/modules/auth/travel-quote/travel-quote.routes'),
-					},
-                    {
-                        path: 'marine-quote', // This will correctly match '/sign-up/marine-quote'
-                        loadChildren: () => import('app/modules/auth/marine-cargo-quotation/marine-cargo-quotation.routes'),
-                    },
-                    {
-                        path: 'admin-test',
-                        loadComponent: () => import('app/test-admin.component').then(m => m.TestAdminComponent),
-                    },
-                    {
-                        path: 'admin-dashboard',
-                        loadChildren: () => import('app/modules/admin/public-admin.routes').then(m => m.publicAdminRoutes),
-                    },
-                ]
-            }
-            // --- END OF FIX ---
 		],
 	},
 

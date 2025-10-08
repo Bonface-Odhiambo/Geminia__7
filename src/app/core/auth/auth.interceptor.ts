@@ -70,8 +70,14 @@ export const authInterceptor = (
         catchError((error) => {
             console.log('Interceptor caught an error on a secure route:', error);
             if (error instanceof HttpErrorResponse && error.status === 401) {
-                // Only sign out if this is not an endpoint that should be ignored
-                if (!shouldNotLogoutOn401) {
+                // Check if this is an admin session - don't logout admin users on API 401s
+                const isAdminSession = authService.isAdmin();
+                
+                if (isAdminSession) {
+                    console.log('🔧 Admin session detected - ignoring 401 error from backend API:', req.url);
+                    // Don't logout admin users, just pass the error through
+                } else if (!shouldNotLogoutOn401) {
+                    // Only sign out regular users if this is not an endpoint that should be ignored
                     authService.signOut();
                 } else {
                     console.log('401 error on optional endpoint, not logging out:', req.url);

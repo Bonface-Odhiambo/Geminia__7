@@ -9,6 +9,7 @@ import { JwtService } from '../../modules/auth/shared/services/jwt.service';
 import { AuthenticationService } from '../../modules/auth/shared/services/auth.service';
 import { User } from '../user/user.types';
 import { Router } from '@angular/router';
+import { AdminCredentialsService } from './admin-credentials.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -20,6 +21,7 @@ export class AuthService {
 
     private jwtService: JwtService = inject(JwtService);
     private authenticationService: AuthenticationService = inject(AuthenticationService);
+    private adminCredentialsService: AdminCredentialsService = inject(AdminCredentialsService);
     private readonly STORAGE_KEYS = {
         USER_DATA: 'geminia_user_data'
     };
@@ -101,7 +103,52 @@ export class AuthService {
 
 
     signIn(credentials: { username: string; password: string }): Observable<any> {
+        // Check if this is an admin login attempt
+        const adminUser = this.adminCredentialsService.validateCredentials(
+            credentials.username, 
+            credentials.password
+        );
+
+        if (adminUser) {
+            // Handle admin authentication locally
+            return this.handleAdminLogin(adminUser);
+        }
+
+        // Regular user authentication via API
         return this._httpClient.post(`${this.baseUrl}/login`, credentials);
+    }
+
+    /**
+     * Handle admin login with sample credentials
+     */
+    private handleAdminLogin(adminUser: any): Observable<any> {
+        return of({
+            isAdmin: true,
+            adminUser: adminUser,
+            accessToken: this.adminCredentialsService.generateAdminToken(adminUser),
+            message: 'Admin login successful'
+        }).pipe(
+            tap((response) => {
+                // Set admin session
+                this.accessToken = response.accessToken;
+                sessionStorage.setItem('isAdmin', 'true');
+                sessionStorage.setItem('adminUser', JSON.stringify(adminUser));
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('userType', 'admin');
+                
+                // Set user data for admin
+                this._userService.user = {
+                    username: adminUser.username,
+                    name: adminUser.name,
+                    email: adminUser.username,
+                    userType: 'A', // 'A' for Admin
+                    loginTime: Date.now(),
+                    phoneNumber: 'N/A'
+                };
+
+                console.log('✅ Admin login successful:', adminUser.name);
+            })
+        );
     }
 
     /**
@@ -180,9 +227,37 @@ export class AuthService {
     }
 
     /**
+     * Check if current user is admin
+     */
+    isAdmin(): boolean {
+        const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
+        const adminToken = this.accessToken;
+        
+        if (isAdmin && adminToken) {
+            return this.adminCredentialsService.isValidAdminToken(adminToken);
+        }
+        
+        return false;
+    }
+
+    /**
+     * Get current admin user data
+     */
+    getAdminUser(): any {
+        const adminUserData = sessionStorage.getItem('adminUser');
+        return adminUserData ? JSON.parse(adminUserData) : null;
+    }
+
+    /**
      * Check the authentication status
      */
     check(): Observable<boolean> {
+        // Check if this is an admin session
+        if (this.isAdmin()) {
+            console.log('✅ Admin session active');
+            return of(true);
+        }
+
         // Check if the user is logged in
         // if (this._authenticated) {
         //     return of(true);

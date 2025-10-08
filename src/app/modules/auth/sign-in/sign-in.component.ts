@@ -189,6 +189,19 @@ export class AuthSignInComponent implements OnInit {
             finalize(() => this.signInForm.enable())
         ).subscribe({
             next: (res: any) => {
+                // Check if this is an admin login
+                if (res.isAdmin) {
+                    this.alert = { type: 'success', message: `Welcome ${res.adminUser.name}! Redirecting to admin dashboard...` };
+                    this.showAlert = true;
+                    
+                    // Redirect to admin dashboard after a short delay
+                    setTimeout(() => {
+                        this.router.navigate(['/admin']);
+                    }, 1500);
+                    return;
+                }
+                
+                // Regular user login flow
                 if (res.tempToken) {
                     this.authService.tempToken = res.tempToken;
                     this.loginState = 'otp';

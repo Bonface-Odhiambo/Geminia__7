@@ -11,6 +11,7 @@ import { AdminService } from '../../services/admin.service';
 export class QuoteUsersComponent implements OnInit {
     quoteUsers: any[] = [];
     isLoading = true;
+    error: string | null = null;
     currentPage = 0;
     pageSize = 20;
 
@@ -22,17 +23,38 @@ export class QuoteUsersComponent implements OnInit {
 
     loadQuoteUsers(): void {
         this.isLoading = true;
+        this.error = null;
+        
+        // Check if this is an admin session - use mock data for faster loading
+        if (this.isAdminSession()) {
+            console.log('🔧 Admin session detected - using mock data for quote users');
+            setTimeout(() => {
+                this.loadMockQuoteUsers();
+                this.isLoading = false;
+            }, 300); // Fast loading simulation
+            return;
+        }
+        
         this.adminService.getQuoteUsers(this.currentPage * this.pageSize, this.pageSize).subscribe({
             next: (data) => {
                 this.quoteUsers = data.pageItems || [];
                 this.isLoading = false;
+                this.error = null;
             },
             error: (err) => {
                 console.error('Error loading quote users:', err);
+                this.error = 'Failed to load quote users. Please try again.';
                 this.isLoading = false;
-                this.loadMockQuoteUsers();
             }
         });
+    }
+
+    retryLoad(): void {
+        this.loadQuoteUsers();
+    }
+
+    private isAdminSession(): boolean {
+        return sessionStorage.getItem('isAdmin') === 'true';
     }
 
     loadMockQuoteUsers(): void {

@@ -1,11 +1,11 @@
-<div class="dashboard-container">
+<div class="dashboard-container w-full overflow-x-hidden">
     <!-- Header -->
-    <div class="flex justify-between items-center mb-8">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p class="text-gray-600 mt-1">Welcome back! Here's what's happening with your platform today.</p>
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
+        <div class="flex-1 min-w-0">
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p class="text-gray-600 mt-1 text-sm sm:text-base">Welcome back! Here's what's happening with your platform today.</p>
         </div>
-        <button class="px-4 py-2 bg-[#04b2e1] text-white rounded-lg hover:bg-[#21275c] transition-colors">
+        <button class="px-4 py-2 bg-[#04b2e1] text-white rounded-lg hover:bg-[#21275c] transition-colors whitespace-nowrap self-start sm:self-auto">
             <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
             </svg>
@@ -19,7 +19,7 @@
     </div>
 
     <!-- Metrics Cards -->
-    <div *ngIf="!isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    <div *ngIf="!isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-8 w-full">
         <!-- Total Users -->
         <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-[#04b2e1] hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
@@ -130,7 +130,7 @@
     </div>
 
     <!-- Charts Section -->
-    <div *ngIf="!isLoading" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div *ngIf="!isLoading" class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mb-8 w-full">
         <!-- Website Traffic Chart -->
         <div class="bg-white rounded-xl shadow-sm p-6">
             <div class="flex justify-between items-center mb-4">
@@ -179,7 +179,7 @@
     </div>
 
     <!-- Product Distribution -->
-    <div *ngIf="!isLoading" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <div *ngIf="!isLoading" class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 mb-8 w-full">
         <div class="bg-white rounded-xl shadow-sm p-6 lg:col-span-2">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Product Distribution</h3>
             <div class="space-y-4">
@@ -229,34 +229,34 @@
     </div>
 
     <!-- Recent Transactions Table -->
-    <div *ngIf="!isLoading" class="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200">
+    <div *ngIf="!isLoading" class="bg-white rounded-xl shadow-sm overflow-hidden w-full">
+        <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-semibold text-gray-900">Recent Transactions</h3>
         </div>
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+            <table class="w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                        <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                        <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                        <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                        <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     <tr *ngFor="let transaction of recentTransactions" class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ transaction.id }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ transaction.user }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ transaction.product }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">KES {{ transaction.amount | number }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ transaction.id }}</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ transaction.user }}</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ transaction.product }}</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">KES {{ transaction.amount | number }}</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap">
                             <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ getStatusClass(transaction.status) }}">
                                 {{ transaction.status }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ transaction.date }}</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ transaction.date }}</td>
                     </tr>
                 </tbody>
             </table>
