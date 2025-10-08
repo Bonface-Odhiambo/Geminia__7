@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Inject, ChangeDetectorRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormControl, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,12 +15,49 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { Subject, ReplaySubject, EMPTY } from 'rxjs';
 import { take, takeUntil, debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 import { UserService } from 'app/core/user/user.service';
 import { QuoteService } from '../shared/services/quote.service';
 import { ThousandsSeparatorValueAccessor } from '../directives/thousands-separator-value-accessor';
+
+// Custom Validators
+export class CustomValidators {
+    // ID Number: exactly 8 digits
+    static idNumber(control: AbstractControl): ValidationErrors | null {
+        if (!control.value) return null;
+        const idPattern = /^\d{8}$/;
+        return idPattern.test(control.value) ? null : { 
+            idNumber: { 
+                message: 'ID Number must be exactly 8 digits (e.g., 12345678)' 
+            } 
+        };
+    }
+
+    // KRA PIN: 1 capital letter + 9 digits + 1 capital letter
+    static kraPin(control: AbstractControl): ValidationErrors | null {
+        if (!control.value) return null;
+        const kraPinPattern = /^[A-Z]\d{9}[A-Z]$/;
+        return kraPinPattern.test(control.value) ? null : { 
+            kraPin: { 
+                message: 'KRA PIN must start with a capital letter, followed by 9 digits, and end with a capital letter (e.g., Z123456789X)' 
+            } 
+        };
+    }
+
+    // IDF Number: 2 digits + 5 capital letters + 9 digits
+    static idfNumber(control: AbstractControl): ValidationErrors | null {
+        if (!control.value) return null;
+        const idfPattern = /^\d{2}[A-Z]{5}\d{9}$/;
+        return idfPattern.test(control.value) ? null : { 
+            idfNumber: { 
+                message: 'IDF Number must be 2 digits, followed by 5 capital letters, then 9 digits (e.g., 24VXOIY000002000)' 
+            } 
+        };
+    }
+}
 
 export interface MarineBuyNowData {
     quoteId: string;
@@ -45,6 +82,7 @@ export interface MarineBuyNowData {
         MatDatepickerModule,
         MatNativeDateModule,
         MatAutocompleteModule,
+        MatTooltipModule,
         NgxMatSelectSearchModule,
         ThousandsSeparatorValueAccessor
     ],
@@ -766,6 +804,50 @@ export interface MarineBuyNowData {
                 height: 15px;
             }
         }
+
+        /* Custom Tooltip Styles for Format Pop-ups */
+        ::ng-deep .format-tooltip {
+            background-color: #21275c !important;
+            color: white !important;
+            font-size: 12px !important;
+            padding: 12px 16px !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+            max-width: 280px !important;
+            line-height: 1.4 !important;
+        }
+
+        ::ng-deep .format-tooltip .mat-mdc-tooltip-surface {
+            background-color: #21275c !important;
+            color: white !important;
+        }
+
+        /* Format example styling within tooltip */
+        .format-example {
+            color: #04b2e1;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-top: 4px;
+            display: inline-block;
+        }
+
+        /* Info icon styling */
+        .format-info-icon {
+            color: #04b2e1;
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            cursor: help;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .format-info-icon:hover {
+            color: #21275c;
+        }
     `]
 
 })
@@ -878,8 +960,8 @@ export class MarineBuyNowModalComponent implements OnInit, AfterViewInit {
             lastName: ['', Validators.required],
             emailAddress: ['', [Validators.required, Validators.email]],
             phoneNumber: ['', Validators.required],
-            kraPin: ['', Validators.required],
-            idNumber: ['', Validators.required],
+            kraPin: ['', [Validators.required, CustomValidators.kraPin]],
+            idNumber: ['', [Validators.required, CustomValidators.idNumber]],
             streetAddress: ['', Validators.required],
             postalCode: ['', Validators.required],
 
@@ -892,7 +974,7 @@ export class MarineBuyNowModalComponent implements OnInit, AfterViewInit {
             selectCategory: ['', Validators.required], // Category ID
             salesCategory: ['', Validators.required], // Cargo Type ID
             countryOfOrigin: ['', Validators.required],
-            gcrNumber: [''],
+            gcrNumber: ['', [Validators.required, CustomValidators.idfNumber]],
             loadingPort: ['', Validators.required],
             portOfDischarge: ['', Validators.required],
             vesselName: [''],
@@ -1238,8 +1320,59 @@ export class MarineBuyNowModalComponent implements OnInit, AfterViewInit {
         return 'ICC (A) All Risk';
     }
 
-    closeDialog(): void {
+    closeDialog() {
         this.dialogRef.close();
+    }
+
+    // Input formatting methods for better UX
+    onIdNumberInput(event: any): void {
+        let value = event.target.value.replace(/\D/g, ''); // Remove non-digits
+        if (value.length > 8) {
+            value = value.substring(0, 8); // Limit to 8 digits
+        }
+        this.shipmentForm.get('idNumber')?.setValue(value);
+    }
+
+    onKraPinInput(event: any): void {
+        let value = event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); // Keep only letters and numbers, convert to uppercase
+        
+        // Format: 1 letter + 9 digits + 1 letter
+        if (value.length > 11) {
+            value = value.substring(0, 11); // Limit to 11 characters
+        }
+        
+        this.shipmentForm.get('kraPin')?.setValue(value);
+    }
+
+    onIdfNumberInput(event: any): void {
+        let value = event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); // Keep only letters and numbers, convert to uppercase
+        
+        // Format: 2 digits + 5 letters + 9 digits = 16 characters
+        if (value.length > 16) {
+            value = value.substring(0, 16); // Limit to 16 characters
+        }
+        
+        this.shipmentForm.get('gcrNumber')?.setValue(value);
+    }
+
+    // Helper method to get validation error message
+    getFieldErrorMessage(fieldName: string): string {
+        const field = this.shipmentForm.get(fieldName);
+        if (field?.errors) {
+            if (field.errors['required']) {
+                return `${fieldName} is required`;
+            }
+            if (field.errors['idNumber']) {
+                return field.errors['idNumber'].message;
+            }
+            if (field.errors['kraPin']) {
+                return field.errors['kraPin'].message;
+            }
+            if (field.errors['idfNumber']) {
+                return field.errors['idfNumber'].message;
+            }
+        }
+        return '';
     }
 
     ngOnDestroy() {

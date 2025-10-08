@@ -95,12 +95,38 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                 <mat-form-field appearance="outline">
-                    <mat-label>ID Number</mat-label>
-                    <input matInput formControlName="idNumber" placeholder="Enter ID number">
+                    <mat-label>ID Number
+                        <mat-icon class="format-info-icon" 
+                                  matTooltip="Required format: Exactly 8 digits&#10;Example: 12345678" 
+                                  matTooltipClass="format-tooltip"
+                                  matTooltipPosition="above">
+                            info
+                        </mat-icon>
+                    </mat-label>
+                    <input matInput formControlName="idNumber" placeholder="12345678" maxlength="8" (input)="onIdNumberInput($event)">
+                    <mat-error *ngIf="shipmentForm.get('idNumber')?.hasError('required')">
+                        ID Number is required
+                    </mat-error>
+                    <mat-error *ngIf="shipmentForm.get('idNumber')?.hasError('idNumber')">
+                        Invalid format. Must be exactly 8 digits.
+                    </mat-error>
                 </mat-form-field>
                 <mat-form-field appearance="outline">
-                    <mat-label>KRA PIN</mat-label>
-                    <input matInput formControlName="kraPin" placeholder="e.g., A012345678K">
+                    <mat-label>KRA PIN
+                        <mat-icon class="format-info-icon" 
+                                  matTooltip="Required format: 1 capital letter + 9 digits + 1 capital letter&#10;Example: Z123456789X" 
+                                  matTooltipClass="format-tooltip"
+                                  matTooltipPosition="above">
+                            info
+                        </mat-icon>
+                    </mat-label>
+                    <input matInput formControlName="kraPin" placeholder="Z123456789X" maxlength="11" style="text-transform: uppercase;" (input)="onKraPinInput($event)">
+                    <mat-error *ngIf="shipmentForm.get('kraPin')?.hasError('required')">
+                        KRA PIN is required
+                    </mat-error>
+                    <mat-error *ngIf="shipmentForm.get('kraPin')?.hasError('kraPin')">
+                        Invalid format. Must be: Letter + 9 digits + Letter
+                    </mat-error>
                 </mat-form-field>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
@@ -166,8 +192,21 @@
                     <input matInput formControlName="vesselName" placeholder="Enter vessel name">
                 </mat-form-field>
                 <mat-form-field appearance="outline">
-                    <mat-label>IDF Number</mat-label>
-                    <input matInput formControlName="gcrNumber" placeholder="e.g., ONWARD INTERNATIONAL">
+                    <mat-label>IDF Number
+                        <mat-icon class="format-info-icon" 
+                                  matTooltip="Required format: 2 digits + 5 capital letters + 9 digits&#10;Example: 24VXOIY000002000" 
+                                  matTooltipClass="format-tooltip"
+                                  matTooltipPosition="above">
+                            info
+                        </mat-icon>
+                    </mat-label>
+                    <input matInput formControlName="gcrNumber" placeholder="24VXOIY000002000" maxlength="16" style="text-transform: uppercase;" (input)="onIdfNumberInput($event)">
+                    <mat-error *ngIf="shipmentForm.get('gcrNumber')?.hasError('required')">
+                        IDF Number is required
+                    </mat-error>
+                    <mat-error *ngIf="shipmentForm.get('gcrNumber')?.hasError('idfNumber')">
+                        Invalid format. Must be: 2 digits + 5 letters + 9 digits
+                    </mat-error>
                 </mat-form-field>
             </div>
             
