@@ -170,7 +170,7 @@
             </div>
             
             <!-- Mode of Shipment | Trade Type -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-1 mb-1">
                 <mat-form-field appearance="outline">
                     <mat-label>Mode of Shipment</mat-label>
                     <mat-select formControlName="modeOfShipment">
@@ -186,7 +186,7 @@
             
             
             <!-- Vessel Name | IDF Number -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-1 mb-1">
                 <mat-form-field appearance="outline">
                     <mat-label>Vessel Name</mat-label>
                     <input matInput formControlName="vesselName" placeholder="Enter vessel name">
@@ -211,7 +211,7 @@
             </div>
             
             <!-- Sum Insured (Full Width) -->
-            <div class="mb-3">
+            <div class="mb-2">
                 <mat-form-field appearance="outline" class="w-full">
                     <mat-label>Sum Insured (KES)</mat-label>
                     <input matInput type="text" formControlName="sumInsured" appThousands placeholder="3,500,000" inputmode="numeric">
@@ -219,7 +219,7 @@
             </div>
             
             <!-- Packaging Type -->
-            <div class="mb-3">
+            <div class="mb-2">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Marine Packaging Type</label>
                 <mat-radio-group formControlName="commodityType" color="primary">
                   <mat-radio-button value="1" class="mr-4">Containerized</mat-radio-button>
@@ -228,7 +228,7 @@
             </div>
             
             <!-- Select Category | Cargo Type -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-1 mb-1">
                 <mat-form-field appearance="outline">
                     <mat-label>Select Category</mat-label>
                     <mat-select formControlName="selectCategory" (openedChange)="onDropdownOpen('categories')">
@@ -263,7 +263,7 @@
             </div>
             
             <!-- Date of Dispatch | Estimated Time of Arrival -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-1 mb-1">
                 <mat-form-field appearance="outline">
                     <mat-label>Date of Dispatch</mat-label>
                     <input matInput [matDatepicker]="dispatchPicker" formControlName="dateOfDispatch">
@@ -279,7 +279,7 @@
             </div>
             
             <!-- Country of Origin | Loading Port -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-1 mb-1">
                 <mat-form-field appearance="outline">
                     <mat-label>Country of Origin</mat-label>
                     <mat-select formControlName="countryOfOrigin" (openedChange)="onDropdownOpen('countries')">
@@ -315,7 +315,7 @@
             </div>
             
             <!-- Port of Discharge | Final Destination -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-1 mb-1">
                 <mat-form-field appearance="outline">
                     <mat-label>Port of Discharge</mat-label>
                     <mat-select formControlName="portOfDischarge" (openedChange)="onDropdownOpen('dischargePorts')"
