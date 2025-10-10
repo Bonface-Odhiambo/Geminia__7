@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ViewEncapsulation } from '@angular/core';
 import {
     FormsModule,
     NgForm,
@@ -15,7 +15,7 @@ import { RouterLink } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { FuseAlertComponent, FuseAlertType } from '@fuse/components/alert';
 import { AuthService } from 'app/core/auth/auth.service';
-import { finalize } from 'rxjs';
+import { finalize, interval, Subscription } from 'rxjs';
 
 @Component({
     selector: 'auth-forgot-password',
@@ -34,7 +34,7 @@ import { finalize } from 'rxjs';
         RouterLink,
     ],
 })
-export class AuthForgotPasswordComponent implements OnInit {
+export class AuthForgotPasswordComponent implements OnInit, OnDestroy {
     @ViewChild('forgotPasswordNgForm') forgotPasswordNgForm: NgForm;
 
     alert: { type: FuseAlertType; message: string } = {
@@ -43,6 +43,15 @@ export class AuthForgotPasswordComponent implements OnInit {
     };
     forgotPasswordForm: UntypedFormGroup;
     showAlert: boolean = false;
+    
+    // Password reset state management
+    resetState: 'email' | 'otp' = 'email';
+    
+    // OTP Resend Timer Properties
+    canResendOtp: boolean = true;
+    resendCooldownSeconds: number = 0;
+    private resendTimerSubscription: Subscription | null = null;
+    private readonly RESEND_COOLDOWN_DURATION = 300; // 5 minutes in seconds
 
     /**
      * Constructor
@@ -63,7 +72,17 @@ export class AuthForgotPasswordComponent implements OnInit {
         // Create the form
         this.forgotPasswordForm = this._formBuilder.group({
             email: ['', [Validators.required, Validators.email]],
+            otp: [''], // OTP field for verification
         });
+    }
+
+    /**
+     * Lifecycle hook - cleanup subscriptions
+     */
+    ngOnDestroy(): void {
+        if (this.resendTimerSubscription) {
+            this.resendTimerSubscription.unsubscribe();
+        }
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -151,8 +170,12 @@ export class AuthForgotPasswordComponent implements OnInit {
                     this.alert = {
                         type: 'success',
                         message:
-                            "Password reset sent! You'll receive an email if you are registered on our system.",
+                            "OTP sent! Please check your email and enter the verification code.",
                     };
+                    
+                    // Transition to OTP state and start timer
+                    this.resetState = 'otp';
+                    this.startResendTimer();
                 },
                 (response) => {
                     // Set the alert
@@ -163,5 +186,104 @@ export class AuthForgotPasswordComponent implements OnInit {
                     };
                 }
             );
+    }
+
+    /**
+     * Starts the resend OTP cooldown timer
+     */
+    private startResendTimer(): void {
+        this.canResendOtp = false;
+        this.resendCooldownSeconds = this.RESEND_COOLDOWN_DURATION;
+        
+        // Clear any existing timer
+        if (this.resendTimerSubscription) {
+            this.resendTimerSubscription.unsubscribe();
+        }
+        
+        // Start countdown timer
+        this.resendTimerSubscription = interval(1000).subscribe(() => {
+            this.resendCooldownSeconds--;
+            
+            if (this.resendCooldownSeconds <= 0) {
+                this.canResendOtp = true;
+                this.resendCooldownSeconds = 0;
+                if (this.resendTimerSubscription) {
+                    this.resendTimerSubscription.unsubscribe();
+                    this.resendTimerSubscription = null;
+                }
+            }
+        });
+    }
+
+    /**
+     * Formats the countdown time for display
+     */
+    getFormattedCountdown(): string {
+        const minutes = Math.floor(this.resendCooldownSeconds / 60);
+        const seconds = this.resendCooldownSeconds % 60;
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    /**
+     * Handles resend OTP with timer logic
+     */
+    resendOtp(): void {
+        if (!this.canResendOtp || this.forgotPasswordForm.disabled) {
+            return;
+        }
+        
+        // Start the timer before sending OTP
+        this.startResendTimer();
+        
+        // Call the existing sendResetLink method to resend OTP
+        this.sendResetLink();
+    }
+
+    /**
+     * Go back to email input state
+     */
+    backToEmail(): void {
+        this.resetState = 'email';
+        this.showAlert = false;
+        this.forgotPasswordForm.get('otp')?.reset();
+        
+        // Reset the timer
+        this.canResendOtp = true;
+        this.resendCooldownSeconds = 0;
+        if (this.resendTimerSubscription) {
+            this.resendTimerSubscription.unsubscribe();
+            this.resendTimerSubscription = null;
+        }
+    }
+
+    /**
+     * Verify OTP code
+     */
+    verifyOtp(): void {
+        if (this.forgotPasswordForm.invalid) {
+            return;
+        }
+
+        // Disable the form
+        this.forgotPasswordForm.disable();
+
+        // Hide the alert
+        this.showAlert = false;
+
+        const otp = this.forgotPasswordForm.get('otp')?.value;
+        
+        // Here you would call your OTP verification service
+        // For now, we'll simulate the verification
+        setTimeout(() => {
+            this.forgotPasswordForm.enable();
+            this.alert = {
+                type: 'success',
+                message: 'OTP verified successfully! You can now reset your password.',
+            };
+            this.showAlert = true;
+            
+            // You might want to redirect to reset password page here
+            // this.router.navigate(['/reset-password']);
+        }, 1000);
     }
 }
