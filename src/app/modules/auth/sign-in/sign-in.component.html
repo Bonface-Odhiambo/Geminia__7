@@ -154,9 +154,22 @@
                                  <input type="text" class="w-full rounded-md border border-gray-300 px-3 py-1.5 sm:py-2 text-center text-base sm:text-lg tracking-[.3em] shadow-sm focus:border-sky-500 focus:ring-sky-500" formControlName="otp" placeholder="_ _ _ _ _ _ _ _" maxlength="8" (keydown.enter)="handleSignIn()"/>
                                  <div class="mt-2 flex items-center justify-between text-xs">
                                      <a (click)="backToCredentials()" class="cursor-pointer font-medium text-sky-500 hover:underline">Back to login</a>
-                                     <a (click)="submitCredentials()" [class.pointer-events-none]="signInForm.disabled" [class.text-gray-400]="signInForm.disabled" class="cursor-pointer font-medium text-sky-500 hover:underline">
-                                         <ng-container *ngIf="signInForm.disabled; else notSending"><span>Sending...</span></ng-container>
-                                         <ng-template #notSending><span>Resend OTP</span></ng-template>
+                                     <a (click)="resendOtp()" 
+                                        [class.pointer-events-none]="!canResendOtp || signInForm.disabled" 
+                                        [class.text-gray-400]="!canResendOtp || signInForm.disabled" 
+                                        [class.cursor-pointer]="canResendOtp && !signInForm.disabled"
+                                        class="font-medium text-sky-500 hover:underline">
+                                         <ng-container *ngIf="signInForm.disabled; else checkTimer">
+                                             <span>Sending...</span>
+                                         </ng-container>
+                                         <ng-template #checkTimer>
+                                             <ng-container *ngIf="!canResendOtp; else canResend">
+                                                 <span>Resend in {{ getFormattedCountdown() }}</span>
+                                             </ng-container>
+                                             <ng-template #canResend>
+                                                 <span>Resend OTP</span>
+                                             </ng-template>
+                                         </ng-template>
                                      </a>
                                  </div>
                              </div>

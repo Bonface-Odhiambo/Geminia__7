@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -10,7 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 import { FuseAlertComponent } from '@fuse/components/alert';
-import { finalize } from 'rxjs';
+import { finalize, interval, Subscription } from 'rxjs';
 import { AuthService } from 'app/core/auth/auth.service';
 import { UserService } from '../../../core/user/user.service';
 import { CreateUserObject } from '../../../core/user/user.types';
@@ -39,7 +39,7 @@ export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): V
         MatRadioModule, FuseAlertComponent,
     ],
 })
-export class AuthSignInComponent implements OnInit {
+export class AuthSignInComponent implements OnInit, OnDestroy {
     showAlert: boolean = false;
     alert: Alert = { type: 'error', message: '' };
     signInForm: FormGroup;
@@ -49,6 +49,12 @@ export class AuthSignInComponent implements OnInit {
     showTermsModal = false;
     showDataPrivacyModal = false;
     loginState: 'credentials' | 'otp' = 'credentials';
+    
+    // OTP Resend Timer Properties
+    canResendOtp: boolean = true;
+    resendCooldownSeconds: number = 0;
+    private resendTimerSubscription: Subscription | null = null;
+    private readonly RESEND_COOLDOWN_DURATION = 300; // 5 minutes in seconds
 
     constructor(
         private fb: FormBuilder,
@@ -205,6 +211,8 @@ export class AuthSignInComponent implements OnInit {
                 if (res.tempToken) {
                     this.authService.tempToken = res.tempToken;
                     this.loginState = 'otp';
+                    // Start the resend timer when OTP is first sent
+                    this.startResendTimer();
                 } else {
                     this.alert = { type: 'error', message: 'Login failed: Invalid response.' };
                     this.showAlert = true;
@@ -278,6 +286,74 @@ export class AuthSignInComponent implements OnInit {
         this.showAlert = false;
         this.authService.clearTempToken();
         this.signInForm.get('otp')?.reset();
+        
+        // Reset the timer
+        this.canResendOtp = true;
+        this.resendCooldownSeconds = 0;
+        if (this.resendTimerSubscription) {
+            this.resendTimerSubscription.unsubscribe();
+            this.resendTimerSubscription = null;
+        }
+    }
+
+    /**
+     * Lifecycle hook - cleanup subscriptions
+     */
+    ngOnDestroy(): void {
+        if (this.resendTimerSubscription) {
+            this.resendTimerSubscription.unsubscribe();
+        }
+    }
+
+    /**
+     * Starts the resend OTP cooldown timer
+     */
+    private startResendTimer(): void {
+        this.canResendOtp = false;
+        this.resendCooldownSeconds = this.RESEND_COOLDOWN_DURATION;
+        
+        // Clear any existing timer
+        if (this.resendTimerSubscription) {
+            this.resendTimerSubscription.unsubscribe();
+        }
+        
+        // Start countdown timer
+        this.resendTimerSubscription = interval(1000).subscribe(() => {
+            this.resendCooldownSeconds--;
+            
+            if (this.resendCooldownSeconds <= 0) {
+                this.canResendOtp = true;
+                this.resendCooldownSeconds = 0;
+                if (this.resendTimerSubscription) {
+                    this.resendTimerSubscription.unsubscribe();
+                    this.resendTimerSubscription = null;
+                }
+            }
+        });
+    }
+
+    /**
+     * Formats the countdown time for display
+     */
+    getFormattedCountdown(): string {
+        const minutes = Math.floor(this.resendCooldownSeconds / 60);
+        const seconds = this.resendCooldownSeconds % 60;
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    /**
+     * Handles resend OTP with timer logic
+     */
+    resendOtp(): void {
+        if (!this.canResendOtp || this.signInForm.disabled) {
+            return;
+        }
+        
+        // Start the timer before sending OTP
+        this.startResendTimer();
+        
+        // Call the existing submitCredentials method
+        this.submitCredentials();
     }
 
     // --- UI Helpers ---
